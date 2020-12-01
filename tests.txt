@@ -1,0 +1,6 @@
+Test documentation:
+
+1. test user by inserting, updating, deleting
+
+2.  test Mongo connection
+
