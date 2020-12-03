@@ -21,6 +21,7 @@ url_upper_vitamins = 'https://www.ncbi.nlm.nih.gov/books/NBK56068/table/summaryt
 url_upper_elements = 'https://www.ncbi.nlm.nih.gov/books/NBK545442/table/appJ_tab9/?report=objectonly'
 url_macroNutrients_DistRange = "https://www.ncbi.nlm.nih.gov/books/NBK56068/table/summarytables.t5/?report=objectonly"
 '''
+#todo: change this path later
 files_arr = os.listdir('/home/nobu/Desktop/1_comp4911/1_cnfdash/csv_nutrientsRDI')
 # leave out .ipynb
 csv_names_arr = [x for x in files_arr if os.path.splitext(x)[1]=='.csv']

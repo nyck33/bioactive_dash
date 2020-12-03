@@ -8,8 +8,6 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash_table import DataTable
-from mongoengine import connect
-#from app import db
 from models import (
     CNFFoodName, CNFConversionFactor, CNFNutrientAmount,
         CNFYieldAmount, CNFRefuseAmount, CNFNutrientName
@@ -44,6 +42,20 @@ from models.model_lactationRDI import (
 
 # injected layouts
 cnf_layout = dbc.Container([
+    dbc.Row([
+        dbc.Col([
+            dcc.Graph(
+                id="cnf-vs-rdi-one-elements"
+            ),
+            dcc.Graph(
+                id="cnf-vs-rdi-one-vitamins"
+            ),
+            dcc.Graph(
+                id="cnf-vs-rdi-one-macro"
+            ),
+
+        ], width=12)
+    ]),
     dbc.Row([
         dbc.Col([
             html.Div(
@@ -121,6 +133,20 @@ cnf_layout = dbc.Container([
 cnf_totals_layout = dbc.Container([
     dbc.Row([
         dbc.Col([
+            dcc.Graph(
+                id="cnf-vs-rdi-totals-elements"
+            ),
+            dcc.Graph(
+                id="cnf-vs-rdi-totals-vitamins"
+            ),
+            dcc.Graph(
+                id="cnf-vs-rdi-totals-macro"
+            ),
+
+        ], width=12)
+    ]),
+    dbc.Row([
+        dbc.Col([
             DataTable(
                 id="cnf-totals-table",
                 data=[],
@@ -143,37 +169,3 @@ cnf_totals_layout = dbc.Container([
     ])
 ],id='cnf-totals-layout', style={'display': 'none'})
 
-rdi_layout = dbc.Container([
-    dbc.Row([
-        dbc.Col([
-            dcc.Graph(
-                id="cnf-vs-rdi-one-elements"
-            ),
-            dcc.Graph(
-                id="cnf-vs-rdi-one-vitamins"
-            ),
-            dcc.Graph(
-                id="cnf-vs-rdi-one-macro"
-            ),
-
-        ], width=12)
-    ])
-], id='rdi-layout', style={'display': 'none'})
-
-rdi_totals_layout = dbc.Container(
-    dbc.Row([
-        dbc.Col([
-            dcc.Graph(
-                id="cnf-vs-rdi-totals-elements"
-            ),
-            dcc.Graph(
-                id="cnf-vs-rdi-totals-vitamins"
-            ),
-            dcc.Graph(
-                id="cnf-vs-rdi-totals-macro"
-            ),
-
-        ], width=12)
-    ]),
-    id='rdi-totals-layout', style={'display': 'none'}
-)
