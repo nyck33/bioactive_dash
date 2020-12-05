@@ -56,12 +56,14 @@ controls_layout = dbc.Container([
             html.Label("1. Choose Ingredient"),
             dcc.Input(
                 id="search-ingredient",
-                list="food_names", placeholder='Enter food name',
+                list="food_names",
+                placeholder='Enter food name',
                 debounce=True,
                 style={'width': '80%'}
             ),
             html.Datalist(
-                id="food_names", children=[
+                id="food_names",
+                children=[
                     html.Option(value=food) for food in food_names_arr
                 ]
             ),
@@ -78,7 +80,8 @@ controls_layout = dbc.Container([
             html.Br(),
             html.Label("3. Quantity"),
             dcc.Input(
-                id="numerical-amount", type="number",
+                id="numerical-amount",
+                type="number",
             ),
             html.Br(),
             dbc.Button(
@@ -87,6 +90,9 @@ controls_layout = dbc.Container([
                 color='primary'
             ),
             html.Br(),
+            html.Div(
+                id='error-message'
+            ),
             html.Br(),
             dbc.Button(
                 "Add to Recipe",
@@ -118,6 +124,8 @@ controls_layout = dbc.Container([
                 id='cumul-ingreds-table',
                 data=[],
                 editable=True,
+                #row_selectable='single',
+                row_deletable=True,
                 style_cell={'textAlign': 'left'},
                 style_data_conditional=[{
                     'if': {'row_index': 'odd'},
@@ -231,7 +239,7 @@ cnf_layout = dbc.Container([
             ),
         ], width=12)
     ])
-], id='cnf-layout', style={'display': 'none'})
+], id='cnf-layout', style={'display': 'block'})
 
 cnf_totals_layout = dbc.Container([
     dbc.Row([
@@ -253,7 +261,6 @@ cnf_totals_layout = dbc.Container([
             DataTable(
                 id="cnf-totals-table",
                 data=[],
-                editable=True,
                 style_cell_conditional=[{
                     'if': {'column_id': c},
                     'textAlign': 'left'

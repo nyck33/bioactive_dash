@@ -1,0 +1,139 @@
+.
+├── app.py
+├── config.txt
+├── create_tables.py
+├── dash_utils
+│   ├── Dash_App_utils.py
+│   ├── Dash_fun.py
+│   ├── Dash_nutrients_rdi_utils.py
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── Dash_App_utils.cpython-37.pyc
+│   │   ├── Dash_App_utils.cpython-38.pyc
+│   │   ├── Dash_fun.cpython-37.pyc
+│   │   ├── Dash_fun.cpython-38.pyc
+│   │   ├── __init__.cpython-37.pyc
+│   │   ├── __init__.cpython-38.pyc
+│   │   ├── Shiny_utils.cpython-37.pyc
+│   │   └── Shiny_utils.cpython-38.pyc
+│   └── Shiny_utils.py
+├── example.gif
+├── __init__.py
+├── LICENSE
+├── MakeSQLTables.ipynb
+├── models
+│   ├── __init__.py
+│   ├── model_childrenRDI.py
+│   ├── model_femalesRDI.py
+│   ├── model_infantsRDI.py
+│   ├── model_lactationRDI.py
+│   ├── model_malesRDI.py
+│   ├── model_nutrients.py
+│   ├── model_pregnancyRDI.py
+│   ├── models.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-37.pyc
+│   │   ├── __init__.cpython-38.pyc
+│   │   ├── model_childrenRDI.cpython-37.pyc
+│   │   ├── model_childrenRDI.cpython-38.pyc
+│   │   ├── model_femalesRDI.cpython-37.pyc
+│   │   ├── model_femalesRDI.cpython-38.pyc
+│   │   ├── model_infantsRDI.cpython-37.pyc
+│   │   ├── model_infantsRDI.cpython-38.pyc
+│   │   ├── model_lactationRDI.cpython-37.pyc
+│   │   ├── model_lactationRDI.cpython-38.pyc
+│   │   ├── model_malesRDI.cpython-37.pyc
+│   │   ├── model_malesRDI.cpython-38.pyc
+│   │   ├── model_nutrients.cpython-37.pyc
+│   │   ├── model_nutrients.cpython-38.pyc
+│   │   ├── model_pregnancyRDI.cpython-37.pyc
+│   │   └── model_pregnancyRDI.cpython-38.pyc
+│   ├── rdi_to_cnf_mappings.txt
+│   └── unused
+│       ├── __init__.py
+│       ├── model_elements.py
+│       ├── model_macronutrients_distrange.py
+│       ├── model_upper_limits.py
+│       └── model_vitamins.py
+├── pages
+│   ├── auth_pages
+│   │   ├── change_password.py
+│   │   ├── forgot_password.py
+│   │   ├── login.py
+│   │   ├── __pycache__
+│   │   │   ├── change_password.cpython-37.pyc
+│   │   │   ├── change_password.cpython-38.pyc
+│   │   │   ├── forgot_password.cpython-37.pyc
+│   │   │   ├── forgot_password.cpython-38.pyc
+│   │   │   ├── login.cpython-37.pyc
+│   │   │   ├── login.cpython-38.pyc
+│   │   │   ├── register.cpython-37.pyc
+│   │   │   └── register.cpython-38.pyc
+│   │   └── register.py
+│   ├── callbacks
+│   │   ├── bioactive_callbacks.py
+│   │   ├── cnf_vs_rdi_recipe_callbacks.py
+│   │   ├── make_meal_callbacks.py
+│   │   ├── my_meals_callbacks.py
+│   │   ├── possible_recipes_callbacks.py
+│   │   ├── __pycache__
+│   │   │   ├── make_meal_callbacks.cpython-37.pyc
+│   │   │   └── make_meal_callbacks.cpython-38.pyc
+│   │   └── user_prof_callbacks.py
+│   ├── home.py
+│   ├── __init__.py
+│   ├── layouts
+│   │   ├── bioactive_layout.py
+│   │   ├── make_meal_layout.py
+│   │   ├── my_meals_layout.py
+│   │   ├── possible_recipes_layout.py
+│   │   ├── __pycache__
+│   │   │   ├── bioactive_layout.cpython-37.pyc
+│   │   │   ├── make_meal_layout.cpython-37.pyc
+│   │   │   ├── make_meal_layout.cpython-38.pyc
+│   │   │   ├── my_meals_layout.cpython-37.pyc
+│   │   │   ├── possible_recipes_layout.cpython-37.pyc
+│   │   │   ├── Shiny_hidden_layouts.cpython-37.pyc
+│   │   │   ├── Shiny_hidden_layouts.cpython-38.pyc
+│   │   │   └── user_prof_layout.cpython-37.pyc
+│   │   ├── Shiny_hidden_layouts.py
+│   │   └── user_prof_layout.py
+│   ├── make_meal.py
+│   ├── page1.py
+│   ├── profile.py
+│   └── __pycache__
+│       ├── home.cpython-37.pyc
+│       ├── home.cpython-38.pyc
+│       ├── __init__.cpython-37.pyc
+│       ├── __init__.cpython-38.pyc
+│       ├── make_meal.cpython-38.pyc
+│       ├── page1.cpython-37.pyc
+│       ├── page1.cpython-38.pyc
+│       ├── profile.cpython-37.pyc
+│       └── profile.cpython-38.pyc
+├── Procfile
+├── __pycache__
+│   ├── server.cpython-37.pyc
+│   └── server.cpython-38.pyc
+├── README.md
+├── requirements.txt
+├── server.py
+├── temp_paste2.py
+├── temp_paste.py
+├── tests.txt
+├── users.db
+└── utilities
+    ├── auth.py
+    ├── config.py
+    ├── __init__.py
+    ├── keys.py
+    ├── __pycache__
+    │   ├── auth.cpython-37.pyc
+    │   ├── auth.cpython-38.pyc
+    │   ├── config.cpython-37.pyc
+    │   ├── config.cpython-38.pyc
+    │   ├── __init__.cpython-37.pyc
+    │   ├── __init__.cpython-38.pyc
+    │   ├── keys.cpython-37.pyc
+    │   └── keys.cpython-38.pyc
+    └── user_models.py

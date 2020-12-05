@@ -141,6 +141,7 @@ def register_make_meal_callbacks(app):
             return conversions_json, nutrients_json, foodgroup_data, foodgroup_cols, conversions_data, \
                    conversions_cols, nutrients_data, nutrients_cols, 'first output', ctx_msg
 
+        #todo: take out this button, add-ingred to see nutrient totals
         elif trigger == 'update-nut-table-btn' and add_clicks > 0:
             # must use base table for math
             # nutrients_df = make_nutrients_df(food_id)
@@ -149,90 +150,50 @@ def register_make_meal_callbacks(app):
             curr_multiplier, measure_num = get_conversions_multiplier(conversions_df, units)
             # divide amount/measure_num
             nutrients_df = mult_nutrients_df(nutrients_df, curr_multiplier, measure_num, amt)
-
+            #todo: update the datatable but leave out nutrients_json
             nutrients_cols = [{"name": i, "id": i} for i in nutrients_df.columns]
             nutrients_data = nutrients_df.to_dict('records')
 
-            # update the hidden nutrients-df for appending in add-ingred function
+            # todo: leave this out
+            # todo: update the hidden nutrients-df for appending in add-ingred function
             nutrients_json = nutrients_df.to_json(date_format='iso', orient='split')
 
-            return no_update, nutrients_json, no_update, no_update, no_update, no_update, nutrients_data, nutrients_cols, \
+            return no_update, no_update, no_update, no_update, no_update, no_update, nutrients_data, nutrients_cols, \
                    'update nutrients table', ctx_msg
+
+            #return no_update, nutrients_json, no_update, no_update, no_update, no_update, nutrients_data, nutrients_cols, \
+             #      'update nutrients table', ctx_msg
 
         return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
                'none updated', ctx_msg
 
-    # chained callback to update the total-nutrients-hidden-df and output
-    # to total-nutrients-datatable
-    @app.callback(
-        [Output('hidden-total-nutrients-df', 'data'),
-         Output('cnf-totals-table', 'data'),
-         Output('cnf-totals-table', 'columns')],
-        [Input('add-ingredient', 'n_clicks')],
-        [State('hidden-nutrients-df', 'data'),
-         State('hidden-total-nutrients-df', 'data')]
-    )
-    def update_total_nutrients_df(num_clicks, nutrients_json, total_nutrients_json):
-        """
-        Total-nutrients-df has cols with no value when that row's nutrient is non-existent in
-        all added ingredients
-        Step:
-        #iterate rows of cumul_ingreds: Ingredient, Amount, Units to get name, amt, units
-        # get food id from ingred to make df's of conversions and nutrients
-        # then call conversions_multiplier and mult_nutrients_table to get multiplied_df
-        """
-        if num_clicks <= 0:
-            return no_update, no_update, no_update
+    #todo: decouple this from above.  Create totals table when user clicks radio based on
+    # selected ingredients, reuse functions
 
-        nutrients_totals_df = None
-        if total_nutrients_json is None:
-            nutrients_totals_df = pd.concat({k: pd.Series(v) for k, v in
-                                             nutrients_totals_dict.items()}, axis=1)
-        else:
-            # add to this
-            nutrients_totals_df = pd.read_json(total_nutrients_json, orient='split')
-
-        if nutrients_json is None:
-            return no_update, no_update, no_update
-
-        nutrients_df = pd.read_json(nutrients_json, orient='split')
-
-        # total_nutrients_df = pd.read_json(total_nutrients_json, orient='split')
-        nutrients_totals_df.set_index('Name', inplace=True, drop=False)
-
-        for index, row in nutrients_df.iterrows():
-            curr_ingred = row['Name']
-            curr_ingred_amt = row['Value']
-            curr_ingred_units = row['Units']
-            # index into nutrients_totals_df and add value
-            curr_total_nutrient = float(nutrients_totals_df.loc[curr_ingred, 'Value'])
-            new_total_nutrient = curr_total_nutrient + curr_ingred_amt
-            nutrients_totals_df.loc[[curr_ingred], ['Value']] = new_total_nutrient
-
-        nutrients_totals_json = nutrients_totals_df.to_json(date_format='iso', orient='split')
-
-        # return json, dict and cols
-        total_nutrients_json = nutrients_totals_df.to_json(date_format='iso', orient='split')
-        cnf_totals_table_data = nutrients_totals_df.to_dict('records')
-        cnf_totals_table_cols = [{'name': i, "id": i} for i in nutrients_totals_df.columns]
-
-        return total_nutrients_json, cnf_totals_table_data, cnf_totals_table_cols
-
+    ################def update_total_nutrients_df was here################3
     # for display at the top
     @app.callback(
         [Output('hidden-cumul-ingreds-df', 'children'),
          Output('cumul-ingreds-table', 'data'),
-         Output('cumul-ingreds-table', 'columns')],
-        [Input('add-ingredient', 'n_clicks'),
-         Input('remove-ingredient', 'n_clicks')],
+         Output('cumul-ingreds-table', 'columns'),
+        Output('hidden-total-nutrients-df', 'data'), #new
+         Output('cnf-totals-table', 'data'), #new
+         Output('cnf-totals-table', 'columns')], #new
+        [Input('add-ingredient', 'n_clicks'), #same
+         Input('remove-ingredient', 'n_clicks')], #unused
         [State('hidden-cumul-ingreds-df', 'children'),
          State('search-ingredient', 'value'),
          State("numerical-amount", "value"),
          State('units-dropdown', 'value'),
-         State('hidden-nutrients-df', 'data')]
+         State('hidden-nutrients-df', 'data'), #same
+         State('hidden-total-nutrients-df', 'data')] #same
     )
+    #todo: rework this so it's not making table from dataframe but follow documenttion example
+    #where rows are appended to the current table data.  Then when rows are removed, no need to update
+    #dataframe
     def update_cum_ingredients_table(add_clicks, remove_clicks, cumul_ingreds_json,
-                                     ingredient, amt, units, nutrients_json):
+                                     ingredient, amt, units, nutrients_json,
+                                     total_nutrients_json):
         """
         add row to cumulative ingredients for n_clicks of add ingredient
         data is a list of dicts of [{col: value, col: value}, {col: value, col: value}]
@@ -248,9 +209,42 @@ def register_make_meal_callbacks(app):
             'inputs': ctx.inputs
         }, indent=2)
         if add_clicks <= 0:
-            return no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update
         # make a dict of current ingred, amt, units and append
         if trigger == "add-ingredient":
+            #todo: update the total nutrients_df first with new entry, then add to cumulative list
+            nutrients_totals_df = None
+            if total_nutrients_json is None:
+                nutrients_totals_df = pd.concat({k: pd.Series(v) for k, v in
+                                                 nutrients_totals_dict.items()}, axis=1)
+            else:
+                # add to this
+                nutrients_totals_df = pd.read_json(total_nutrients_json, orient='split')
+
+            if nutrients_json is None: #no current entry
+                return no_update, no_update, no_update, no_update, no_update, no_update
+
+            nutrients_df = pd.read_json(nutrients_json, orient='split')
+
+            # total_nutrients_df = pd.read_json(total_nutrients_json, orient='split')
+            nutrients_totals_df.set_index('Name', inplace=True, drop=False)
+
+            for index, row in nutrients_df.iterrows():
+                curr_ingred = row['Name']
+                curr_ingred_amt = row['Value']
+                curr_ingred_units = row['Units']
+                # index into nutrients_totals_df and add value
+                curr_total_nutrient = float(nutrients_totals_df.loc[curr_ingred, 'Value'])
+                new_total_nutrient = curr_total_nutrient + curr_ingred_amt
+                nutrients_totals_df.loc[[curr_ingred], ['Value']] = new_total_nutrient
+
+            nutrients_totals_json = nutrients_totals_df.to_json(date_format='iso', orient='split')
+
+            # return json, dict and cols
+            total_nutrients_json = nutrients_totals_df.to_json(date_format='iso', orient='split')
+            cnf_totals_table_data = nutrients_totals_df.to_dict('records')
+            cnf_totals_table_cols = [{'name': i, "id": i} for i in nutrients_totals_df.columns]
+            ###################################################################################
             curr_ingred_dict = {'Ingredient': ingredient, 'Amount': str(amt), 'Units': units}
             curr_ingred_df = pd.DataFrame(curr_ingred_dict, columns=['Ingredient', 'Amount', 'Units'],
                                           index=[0])
@@ -276,13 +270,14 @@ def register_make_meal_callbacks(app):
             # todo: return this to hidden div
             new_cumul_ingreds_json = new_cumul_ingreds_df.to_json(date_format='iso', orient='split')
 
-            return new_cumul_ingreds_json, new_cumul_ingreds_data, new_cumul_ingreds_cols
+            return new_cumul_ingreds_json, new_cumul_ingreds_data, new_cumul_ingreds_cols, \
+                    total_nutrients_json, cnf_totals_table_data, cnf_totals_table_cols
 
         elif trigger == "remove-ingredient":
             # make df from table data, upload to hidden div and return as data and cols
             # account for two types of delete, selection and button press and native UI delete
             pass
-        return no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update, no_update, no_update
 
     """
     @app.callback(

@@ -106,20 +106,20 @@ controls_layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             dcc.Store(  # todo: hide dataframes as json
-                id="hidden-conversions-df", storage_type='local'
+                id="hidden-conversions-df", storage_type='memory'
             ),
             dcc.Store(
-                id="hidden-nutrients-df", storage_type='session'
+                id="hidden-nutrients-df", storage_type='memory'
             ),
             dcc.Store(
-                id="hidden-cumul-ingreds-df", storage_type='local'
+                id="hidden-cumul-ingreds-df", storage_type='memory'
             ),
             dcc.Store(
-                id='hidden-total-nutrients-df', storage_type='session'
+                id='hidden-total-nutrients-df', storage_type='memory'
 
             ),
             dcc.Store(  # todo: trigger on selecting age and lifestage group
-                id="hidden-rdi-df", storage_type='local'
+                id="hidden-rdi-df", storage_type='memory'
             ),
 
         ], width=12),
@@ -146,17 +146,19 @@ controls_layout = dbc.Container([
             html.Br(),
 
             html.Label("1. Choose Ingredient"),
+            html.Br(),
             dcc.Input(
                 id="search-ingredient",
                 list="food_names", placeholder='Enter food name',
                 debounce=True,
-                style={'width': '80%'}
+                style={'width': '50%'}
             ),
             html.Datalist(
                 id="food_names", children=[
                     html.Option(value=food) for food in food_names_arr
                 ]
             ),
+            html.Br(),
             dbc.Button(
                 "Search Ingredient",
                 id='search-ingredient-btn',
@@ -166,6 +168,7 @@ controls_layout = dbc.Container([
             html.Label("2. Amount Units"),
             dcc.Dropdown(
                 id="units-dropdown",
+                style={'width': '40%'}
             ),
             html.Br(),
             html.Label("3. Quantity"),
@@ -176,7 +179,12 @@ controls_layout = dbc.Container([
             dbc.Button(
                 "Update Nutrient Table",
                 id="update-nut-table-btn",
-                color='primary'
+                color='success'
+            ),
+            dbc.Button(
+                "Show %RDI for ingredient",
+                id='%rdi-ingredient-btn',
+                color='warning'
             ),
             html.Br(),
             html.Br(),
@@ -201,11 +209,11 @@ controls_layout = dbc.Container([
                 value='cnf-table'
             )
 
-        ], width=6),
+        ], width=12),
+    ]),
+    dbc.Row([
         dbc.Col([
-            html.Label(
-                "Selected Ingredients"
-            ),
+            html.Label("Selected Ingredients"),
             DataTable(  # ingredient, amt, units
                 id='cumul-ingreds-table',
                 data=[],
@@ -220,9 +228,8 @@ controls_layout = dbc.Container([
                     'fontWeight': 'bold'
                 },
             ),
-        ], width=6)
+        ], width=12)
     ]),
-
     dbc.Row([
         dbc.Col([
             html.Div(
@@ -231,7 +238,8 @@ controls_layout = dbc.Container([
         ], width=12)
     ])
 
-], id="controls-layout", style={'display': 'block'},
+], id="controls-layout",
+    style={'display': 'block'},
 
 )
 
