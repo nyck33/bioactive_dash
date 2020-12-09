@@ -59,9 +59,15 @@ from dash_utils.Shiny_utils import (rdi_nutrients, rdi_modelnames_arr, make_food
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,
                                          get_conversions_multiplier, mult_nutrients_df)
 
-#from .layouts.Shiny_hidden_layouts import (cnf_layout, cnf_totals_layout)
+#import layouts
 from .layouts.make_meal_layout import (cnf_layout, cnf_totals_layout)
+from .layouts.bioactive_layout import (bioactive_layout)
+from .layouts.rdi_charts_layout import (rdi_charts_layout)
+#import callbacks
 from .callbacks.make_meal_callbacks import (register_make_meal_callbacks)
+from .callbacks.bioactive_callbacks import (register_bioactive_callbacks)
+from .callbacks.rdi_charts_callbacks import (register_rdi_charts_callbacks)
+
 #for Flask Login
 import random
 from flask_login import current_user
@@ -126,35 +132,52 @@ controls_layout = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col([
-            # todo: show warnings if over RDI and display red if over upper RDI
-            html.Label("Enter age"),
-            dcc.Input(
-                id="age-input", type="number", value='30',
-                debounce=True
+            html.Label("Selected Ingredients"),
+            DataTable(  # ingredient, amt, units
+                id='cumul-ingreds-table',
+                data=[],
+                row_deletable=True,
+                style_cell={'textAlign': 'left'},
+                style_data_conditional=[{
+                    'if': {'row_index': 'odd'},
+                    'backgroundColor': 'rgb(248,248,248)'
+                }],
+                style_header={
+                    'backgroundColor': 'rgb(230,230,230)',
+                    'fontWeight': 'bold'
+                },
             ),
-            html.Br(),
-            html.Label("Select gender"),
-            dcc.RadioItems(
-                options=[
-                    {'label': 'male', 'value': 'Males'},
-                    {'label': 'female', 'value': 'Females'},
-                    {'label': 'pregnant', 'value': 'Pregnancy'},
-                    {'label': 'lactating', 'value': 'Lactation'}
-                ],
-                value='Females'
-            ),
-            html.Br(),
-
-            html.Label("1. Choose Ingredient"),
+        ], width=12)
+    ]),
+    dbc.Row([
+        dbc.Col([
+            html.Label("1. Choose Ingredient by Name"),
             html.Br(),
             dcc.Input(
                 id="search-ingredient",
-                list="food_names", placeholder='Enter food name',
+                list="food_names",
+                placeholder='Enter food name',
                 debounce=True,
-                style={'width': '50%'}
+                style={'width': '100%'}
             ),
             html.Datalist(
-                id="food_names", children=[
+                id="food_names",
+                children=[
+                    html.Option(value=food) for food in food_names_arr
+                ]
+            ),
+            html.Br(),
+            html.Label('Or Choose Ingredient by Nutrient'), #filter here for plant-based
+            dcc.Input(
+                id="search-nutrient-foods",
+                list="nutrient_names",
+                placeholder='Enter nutrient name',
+                debounce=True,
+                style={'width': '100%'}
+            ),
+            html.Datalist(
+                id="nutrient_names",
+                children=[
                     html.Option(value=food) for food in food_names_arr
                 ]
             ),
@@ -165,13 +188,18 @@ controls_layout = dbc.Container([
                 color='primary'
             ),
             html.Br(),
+        ],width=12)
+    ]),
+    dbc.Row([
+        dbc.Col([
             html.Label("2. Amount Units"),
             dcc.Dropdown(
                 id="units-dropdown",
-                style={'width': '40%'}
+                style={'width': '75%'}
             ),
             html.Br(),
             html.Label("3. Quantity"),
+            html.Br(),
             dcc.Input(
                 id="numerical-amount", type="number",
             ),
@@ -199,36 +227,53 @@ controls_layout = dbc.Container([
                 id="remove-ingredient",
                 color='danger',
                 n_clicks=0
-            ),
-            dcc.RadioItems(
-                id="radio-display-type",
-                options=[
-                    {'label': 'Nutrient Tables & RDI for ingredient', 'value': 'cnf-table'},
-                    {'label': 'Nutrient Tables & RDI for all ingredients', 'value': 'cnf-totals-table'},
-                ],
-                value='cnf-table'
             )
-
-        ], width=12),
-    ]),
-    dbc.Row([
+        ], width=6),
         dbc.Col([
-            html.Label("Selected Ingredients"),
-            DataTable(  # ingredient, amt, units
-                id='cumul-ingreds-table',
+            html.Label("datatable of foods for nutrient"),
+            DataTable(
+                id="nutrient-foods-table",
                 data=[],
-                editable=True,
-                style_cell={'textAlign': 'left'},
+                style_cell={
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'maxWidth': 0,
+                },
+                style_cell_conditional=[{
+
+                    'textAlign': 'left'
+
+                } for c in ['Name'] #todo: change this
+                ],
+                style_data={
+                    'whiteSpace': 'normal',
+                    'height': 'auto'
+                },
                 style_data_conditional=[{
                     'if': {'row_index': 'odd'},
-                    'backgroundColor': 'rgb(248,248,248)'
+                    'backgroundColor': 'rgb(248,248,248)',
                 }],
                 style_header={
                     'backgroundColor': 'rgb(230,230,230)',
                     'fontWeight': 'bold'
                 },
             ),
-        ], width=12)
+        ],width=6)
+    ]),
+
+    dbc.Row([
+        dbc.Col([
+            dcc.RadioItems(
+                id="radio-display-type",
+                options=[
+                    {'label': 'Nutrient Table for ingredient', 'value': 'cnf-table'},
+                    {'label': 'Nutrient Table for all ingredients', 'value': 'cnf-totals-table'},
+                    {'label': 'Bioactive Compounds', 'value': 'bioactive-table'},
+                    {'label': 'vs RDI charts', 'value': 'rdi-charts'},
+                ],
+                value='cnf-table'
+            )
+        ], width=6)
     ]),
     dbc.Row([
         dbc.Col([
@@ -238,8 +283,7 @@ controls_layout = dbc.Container([
         ], width=12)
     ])
 
-], id="controls-layout",
-    style={'display': 'block'},
+], id="controls-layout", style={'display': 'block'}
 
 )
 

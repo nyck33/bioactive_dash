@@ -154,12 +154,10 @@ def register_make_meal_callbacks(app):
             nutrients_cols = [{"name": i, "id": i} for i in nutrients_df.columns]
             nutrients_data = nutrients_df.to_dict('records')
 
-            # todo: leave this out
-            # todo: update the hidden nutrients-df for appending in add-ingred function
             nutrients_json = nutrients_df.to_json(date_format='iso', orient='split')
 
-            return no_update, no_update, no_update, no_update, no_update, no_update, nutrients_data, nutrients_cols, \
-                   'update nutrients table', ctx_msg
+            return no_update, nutrients_json, no_update, no_update, no_update, \
+                   no_update, nutrients_data, nutrients_cols, 'update nutrients table', ctx_msg
 
             #return no_update, nutrients_json, no_update, no_update, no_update, no_update, nutrients_data, nutrients_cols, \
              #      'update nutrients table', ctx_msg
@@ -167,20 +165,38 @@ def register_make_meal_callbacks(app):
         return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update, \
                'none updated', ctx_msg
 
-    #todo: decouple this from above.  Create totals table when user clicks radio based on
-    # selected ingredients, reuse functions
+    #todo: this is chained by the callback below it
 
     ################def update_total_nutrients_df was here################3
+    @app.callback(
+        [Output('cumul-ingreds-table', 'data'),
+         Output('cumul-ingreds-table', 'columns')],
+        [Input('hidden-cumul-ingreds-df', 'children')]
+    )
+    def update_cumul_ingreds_table(cumul_ingreds_json):
+        if cumul_ingreds_json is None:
+            return no_update, no_update
+        cumul_ingreds_data = {}
+        cumul_ingreds_cols = [{}]
+        if cumul_ingreds_json is not None:
+            cumul_ingreds_df = pd.read_json(cumul_ingreds_json, orient='split')
+            # reorder
+            cumul_ingreds_df = cumul_ingreds_df[['Ingredient', 'Amount', 'Units']]
+            cumul_ingreds_cols = [{"name": i, "id": i} for i in cumul_ingreds_df.columns]
+            cumul_ingreds_data = cumul_ingreds_df.to_dict('records')
+
+        return cumul_ingreds_data, cumul_ingreds_cols
+
     # for display at the top
     @app.callback(
         [Output('hidden-cumul-ingreds-df', 'children'),
-         Output('cumul-ingreds-table', 'data'),
-         Output('cumul-ingreds-table', 'columns'),
+         #Output('cumul-ingreds-table', 'data'),
+         #Output('cumul-ingreds-table', 'columns'),
         Output('hidden-total-nutrients-df', 'data'), #new
          Output('cnf-totals-table', 'data'), #new
          Output('cnf-totals-table', 'columns')], #new
         [Input('add-ingredient', 'n_clicks'), #same
-         Input('remove-ingredient', 'n_clicks')], #unused
+         Input('cumul-ingreds-table','data')], #todo: dummy
         [State('hidden-cumul-ingreds-df', 'children'),
          State('search-ingredient', 'value'),
          State("numerical-amount", "value"),
@@ -188,10 +204,8 @@ def register_make_meal_callbacks(app):
          State('hidden-nutrients-df', 'data'), #same
          State('hidden-total-nutrients-df', 'data')] #same
     )
-    #todo: rework this so it's not making table from dataframe but follow documenttion example
-    #where rows are appended to the current table data.  Then when rows are removed, no need to update
-    #dataframe
-    def update_cum_ingredients_table(add_clicks, remove_clicks, cumul_ingreds_json,
+    #todo: update the dataframe and chain to update table
+    def update_ingreds_df_nut_totals_tbl(add_clicks, del_row_data, cumul_ingreds_json,
                                      ingredient, amt, units, nutrients_json,
                                      total_nutrients_json):
         """
@@ -203,6 +217,7 @@ def register_make_meal_callbacks(app):
         ctx = callback_context
         # get id of trigger
         trigger = ctx.triggered[0]['prop_id'].split(".")[0]
+        print(f"cum-ingreds-tbl trigger: {trigger}")
         ctx_msg = json.dumps({
             'states': ctx.states,
             'triggered': ctx.triggered,
@@ -221,8 +236,8 @@ def register_make_meal_callbacks(app):
                 # add to this
                 nutrients_totals_df = pd.read_json(total_nutrients_json, orient='split')
 
-            if nutrients_json is None: #no current entry
-                return no_update, no_update, no_update, no_update, no_update, no_update
+            if nutrients_json is None: # todo: no entry in fields?
+                return no_update, no_update, no_update, no_update
 
             nutrients_df = pd.read_json(nutrients_json, orient='split')
 
@@ -256,28 +271,73 @@ def register_make_meal_callbacks(app):
                 # cumul_ingreds_dicts_arr = cumul_ingreds_df.to_dict('records')
                 # cumul_ingreds_dicts_arr.append(curr_ingred_dict)
                 # new_cumul_ingreds_df = pd.DataFrame(cumul_ingreds_dicts_arr)
-                new_cumul_ingreds_cols = [{"name": i, "id": i} for i in new_cumul_ingreds_df.columns]
-                new_cumul_ingreds_data = new_cumul_ingreds_df.to_dict('records')
+                #new_cumul_ingreds_cols = [{"name": i, "id": i} for i in new_cumul_ingreds_df.columns]
+                #new_cumul_ingreds_data = new_cumul_ingreds_df.to_dict('records')
 
             else:  # first added ingredient
                 new_cumul_ingreds_df = pd.DataFrame([curr_ingred_dict],
                                                     columns=['Ingredient', 'Amount', 'Units'])
                 # new_cumul_ingreds_df = pd.DataFrame([curr_ingred_dict], columns=curr_ingred_dict.keys())
-                new_cumul_ingreds_cols = [{"name": i, "id": i} for i in new_cumul_ingreds_df.columns]
-                # todo: hardcode dict into list for one record???
-                new_cumul_ingreds_data = new_cumul_ingreds_df.to_dict('records')
+                #new_cumul_ingreds_cols = [{"name": i, "id": i} for i in new_cumul_ingreds_df.columns]
 
-            # todo: return this to hidden div
+                #new_cumul_ingreds_data = new_cumul_ingreds_df.to_dict('records')
+
+            # return this to hidden div
             new_cumul_ingreds_json = new_cumul_ingreds_df.to_json(date_format='iso', orient='split')
 
-            return new_cumul_ingreds_json, new_cumul_ingreds_data, new_cumul_ingreds_cols, \
+            return new_cumul_ingreds_json, \
                     total_nutrients_json, cnf_totals_table_data, cnf_totals_table_cols
 
-        elif trigger == "remove-ingredient":
-            # make df from table data, upload to hidden div and return as data and cols
-            # account for two types of delete, selection and button press and native UI delete
-            pass
-        return no_update, no_update, no_update, no_update, no_update, no_update
+        elif trigger == "cumul-ingreds-table": #row removed
+            new_cumul_ingreds_json = {}
+            cnf_totals_table_data = {}
+            cnf_totals_table_cols = [{}]
+            #subtract from this
+            nutrients_totals_df = pd.read_json(total_nutrients_json, orient='split')
+            # make df from table data, upload to hidden div
+            new_cumul_ingreds_df = pd.DataFrame(del_row_data)
+            new_cumul_ingreds_json = new_cumul_ingreds_df.to_json(date_format='iso', orient='split')
+
+            # must update cnf_totals table data, cols, total nutrients json
+            # get the cumul_ingreds_json compare to new_cumul_ingreds_df
+            # find item that was deleted, do the math to subtract nut amounts
+            # from total_nutrients_json and make cnf_totals_data and cols
+            before_cum_ingreds_df = pd.read_json(cumul_ingreds_json, orient='split')
+            before_ingreds_arr = before_cum_ingreds_df['Ingredient'].tolist()
+            now_ingreds_arr = new_cumul_ingreds_df['Ingredient'].tolist()
+            # compare these two, might be more than one
+            removed = list(set(before_ingreds_arr) - set(now_ingreds_arr))
+            #get quantities of nutrients for each deleted ingredient
+            for ingred in removed:
+                ingred_row = before_cum_ingreds_df.loc[before_cum_ingreds_df['Ingredient']==ingred]
+                # extract value from col series
+                amt = ingred_row['Amount'].item()
+                units = ingred_row['Units'].item()
+                # call fn to get df of removed nut vals for curr_ingred
+                food_id = food_to_id_dict[ingred]
+                nutrients_df = make_nutrients_df(food_id)
+                conversions_df = make_conversions_df(food_id)
+                curr_multiplier, measure_num = get_conversions_multiplier(conversions_df, units)
+                rem_nutrients_df = mult_nutrients_df(nutrients_df, curr_multiplier, measure_num, amt)
+
+                # for each nutrient in df, cols = "Name", "Value", "unit"
+                # find Name in current nut_totals_table and subtract Value from Amount
+                for index, row in rem_nutrients_df.iterrows():
+                    nut = row['Name']
+                    amt = float(row['Value'])
+                    units = row['Units']
+                    curr_row = nutrients_totals_df.loc[nutrients_totals_df['Name']==nut]
+                    #curr_amt = float(nutrients_totals_df.loc[nutrients_totals_df['Name']==curr_nut, 'Value'])
+                    curr_amt = curr_row['Value'].item()
+                    new_amt = str(curr_amt - amt)
+
+                    nutrients_totals_df.loc[[nut], ['Value']] = new_amt
+
+            cnf_totals_table_data = nutrients_totals_df.to_dict('records')
+            cnf_totals_table_cols = [{'name': i, "id": i} for i in nutrients_totals_df.columns]
+
+        return new_cumul_ingreds_json, \
+               total_nutrients_json, cnf_totals_table_data, cnf_totals_table_cols
 
     """
     @app.callback(

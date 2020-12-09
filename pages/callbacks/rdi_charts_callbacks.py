@@ -1,3 +1,7 @@
+"""
+callbacks related to making charts and graphs for
+cnf intake vs rdi comparison
+"""
 # -*- coding: utf-8 -*-
 """
 @author; Nobu Kim
@@ -44,6 +48,5 @@ nutrients_totals_dict = {
     "Units": cnf_nutrient_units_all
 }
 
-
-def register_bioactive_callbacks(app):
+def register_rdi_charts_callbacks(app):
     pass

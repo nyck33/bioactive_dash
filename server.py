@@ -21,7 +21,7 @@ server = app.server
 app.config.suppress_callback_exceptions = False
 #app.css.config.serve_locally = True
 #app.scripts.config.serve_locally = True
-app.title = 'Dash Auth Flow'
+app.title = 'Micronutrients and Bioactive'
 
 
 # config

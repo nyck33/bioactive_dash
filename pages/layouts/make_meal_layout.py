@@ -10,163 +10,8 @@ from dash_utils.Shiny_utils import (rdi_nutrients, rdi_modelnames_arr, make_food
 food_to_id_dict, food_names_arr, food_ids_arr = make_food_to_id_dict()
 
 
-controls_layout = dbc.Container([
-    dbc.Row([
-        dbc.Col([
-            dcc.Store(  # todo: hide dataframes as json
-                id="hidden-conversions-df", storage_type='local'
-            ),
-            dcc.Store(
-                id="hidden-nutrients-df", storage_type='session'
-            ),
-            dcc.Store(
-                id="hidden-cumul-ingreds-df", storage_type='local'
-            ),
-            dcc.Store(
-                id='hidden-total-nutrients-df', storage_type='session'
-
-            ),
-            dcc.Store(  # todo: trigger on selecting age and lifestage group
-                id="hidden-rdi-df", storage_type='local'
-            ),
-
-        ], width=12),
-    ]),
-    dbc.Row([
-        dbc.Col([
-            # todo: show warnings if over RDI and display red if over upper RDI
-            html.Label("Enter age"),
-            dcc.Input(
-                id="age-input", type="number", value='30',
-                debounce=True
-            ),
-            html.Br(),
-            html.Label("Select gender"),
-            dcc.RadioItems(
-                options=[
-                    {'label': 'male', 'value': 'Males'},
-                    {'label': 'female', 'value': 'Females'},
-                    {'label': 'pregnant', 'value': 'Pregnancy'},
-                    {'label': 'lactating', 'value': 'Lactation'}
-                ],
-                value='Females'
-            ),
-            html.Br(),
-
-            html.Label("1. Choose Ingredient"),
-            dcc.Input(
-                id="search-ingredient",
-                list="food_names",
-                placeholder='Enter food name',
-                debounce=True,
-                style={'width': '80%'}
-            ),
-            html.Datalist(
-                id="food_names",
-                children=[
-                    html.Option(value=food) for food in food_names_arr
-                ]
-            ),
-            dbc.Button(
-                "Search Ingredient",
-                id='search-ingredient-btn',
-                color='primary'
-            ),
-            html.Br(),
-            html.Label("2. Amount Units"),
-            dcc.Dropdown(
-                id="units-dropdown",
-            ),
-            html.Br(),
-            html.Label("3. Quantity"),
-            dcc.Input(
-                id="numerical-amount",
-                type="number",
-            ),
-            html.Br(),
-            dbc.Button(
-                "Update Nutrient Table",
-                id="update-nut-table-btn",
-                color='primary'
-            ),
-            html.Br(),
-            html.Div(
-                id='error-message'
-            ),
-            html.Br(),
-            dbc.Button(
-                "Add to Recipe",
-                id='add-ingredient',
-                color='success',
-                n_clicks=0
-            ),
-            dbc.Button(
-                "Remove Ingredient",
-                id="remove-ingredient",
-                color='danger',
-                n_clicks=0
-            ),
-            dcc.RadioItems(
-                id="radio-display-type",
-                options=[
-                    {'label': 'Nutrient Tables & RDI for ingredient', 'value': 'cnf-table'},
-                    {'label': 'Nutrient Tables & RDI for all ingredients', 'value': 'cnf-totals-table'},
-                ],
-                value='cnf-table'
-            )
-
-        ], width=6),
-        dbc.Col([
-            html.Label(
-                "Selected Ingredients"
-            ),
-            DataTable(  # ingredient, amt, units
-                id='cumul-ingreds-table',
-                data=[],
-                editable=True,
-                #row_selectable='single',
-                row_deletable=True,
-                style_cell={'textAlign': 'left'},
-                style_data_conditional=[{
-                    'if': {'row_index': 'odd'},
-                    'backgroundColor': 'rgb(248,248,248)'
-                }],
-                style_header={
-                    'backgroundColor': 'rgb(230,230,230)',
-                    'fontWeight': 'bold'
-                },
-            ),
-        ], width=6)
-    ]),
-
-    dbc.Row([
-        dbc.Col([
-            html.Div(
-                id="data-layout"
-            )
-        ], width=12)
-    ])
-
-], id="controls-layout", style={'display': 'block'},
-
-)
-
 # injected layouts
 cnf_layout = dbc.Container([
-    dbc.Row([
-        dbc.Col([
-            dcc.Graph(
-                id="cnf-vs-rdi-one-elements"
-            ),
-            dcc.Graph(
-                id="cnf-vs-rdi-one-vitamins"
-            ),
-            dcc.Graph(
-                id="cnf-vs-rdi-one-macro"
-            ),
-
-        ], width=12)
-    ]),
     dbc.Row([
         dbc.Col([
             html.Div(
@@ -179,8 +24,16 @@ cnf_layout = dbc.Container([
             DataTable(
                 id="table-foodgroup-source",
                 data=[],
-                editable=True,
-                style_cell={'textAlign': 'left'},
+                style_cell={
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'maxWidth': 0,
+                    'textAlign': 'left'
+                },
+                style_data={
+                    'whiteSpace': 'normal',
+                    'height': 'auto'
+                },
                 style_data_conditional=[{
                     'if': {'row_index': 'odd'},
                     'backgroundColor': 'rgb(248,248,248)'
@@ -197,8 +50,11 @@ cnf_layout = dbc.Container([
             DataTable(
                 id="conversions-table",
                 data=[],
-                editable=True,
                 style_cell={'textAlign': 'left'},
+                style_data={
+                    'whiteSpace': 'normal',
+                    'height': 'auto'
+                },
                 style_data_conditional=[{
                     'if': {'row_index': 'odd'},
                     'backgroundColor': 'rgb(248,248,248)'
@@ -215,15 +71,24 @@ cnf_layout = dbc.Container([
             DataTable(
                 id="nutrients-table",
                 data=[],
-                editable=True,
+                style_cell={
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'maxWidth': 0,
+                },
                 style_cell_conditional=[{
                     'if': {'column_id': c},
                     'textAlign': 'left'
+
                 } for c in ['Name']
                 ],
+                style_data={
+                    'whiteSpace': 'normal',
+                    'height': 'auto'
+                },
                 style_data_conditional=[{
                     'if': {'row_index': 'odd'},
-                    'backgroundColor': 'rgb(248,248,248)'
+                    'backgroundColor': 'rgb(248,248,248)',
                 }],
                 style_header={
                     'backgroundColor': 'rgb(230,230,230)',
@@ -237,30 +102,17 @@ cnf_layout = dbc.Container([
             html.Pre(
                 id='ctx-msg'
             ),
-        ], width=12)
+        ], width=6)
     ])
 ], id='cnf-layout', style={'display': 'block'})
 
 cnf_totals_layout = dbc.Container([
     dbc.Row([
         dbc.Col([
-            dcc.Graph(
-                id="cnf-vs-rdi-totals-elements"
-            ),
-            dcc.Graph(
-                id="cnf-vs-rdi-totals-vitamins"
-            ),
-            dcc.Graph(
-                id="cnf-vs-rdi-totals-macro"
-            ),
-
-        ], width=12)
-    ]),
-    dbc.Row([
-        dbc.Col([
             DataTable(
                 id="cnf-totals-table",
                 data=[],
+
                 style_cell_conditional=[{
                     'if': {'column_id': c},
                     'textAlign': 'left'
@@ -275,7 +127,7 @@ cnf_totals_layout = dbc.Container([
                     'fontWeight': 'bold'
                 },
             )
-        ])
+        ], width=12)
     ])
 ],id='cnf-totals-layout', style={'display': 'none'})
 
