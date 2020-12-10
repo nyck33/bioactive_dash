@@ -19,6 +19,8 @@ from mongoengine import connect
 #connect('cnf')
 from server import db_mongo
 
+from dash_utils.make_meal_utils import nut_names_arr
+
 from models import (
     CNFFoodName, CNFConversionFactor, CNFNutrientAmount,
     CNFYieldAmount, CNFRefuseAmount, CNFNutrientName
@@ -127,6 +129,9 @@ controls_layout = dbc.Container([
             dcc.Store(  # todo: trigger on selecting age and lifestage group
                 id="hidden-rdi-df", storage_type='memory'
             ),
+            dcc.Store(
+                id='nutrient-foods-store', storage_type='memory'
+            )
 
         ], width=12),
     ]),
@@ -167,6 +172,12 @@ controls_layout = dbc.Container([
                 ]
             ),
             html.Br(),
+            dbc.Button(
+                "Search Ingredient",
+                id='search-ingredient-btn',
+                color='primary'
+            ),
+            html.Br(),
             html.Label('Or Choose Ingredient by Nutrient'), #filter here for plant-based
             dcc.Input(
                 id="search-nutrient-foods",
@@ -178,17 +189,56 @@ controls_layout = dbc.Container([
             html.Datalist(
                 id="nutrient_names",
                 children=[
-                    html.Option(value=food) for food in food_names_arr
+                    html.Option(value=nutrient) for nutrient in nut_names_arr
                 ]
             ),
             html.Br(),
             dbc.Button(
-                "Search Ingredient",
-                id='search-ingredient-btn',
+                "Search by Nutrient",
+                id='search-by-nut-btn',
                 color='primary'
+            )
+        ],width=6),
+        dbc.Col([
+            html.Label("datatable of foods for nutrient"),
+            DataTable(
+                id="nutrient-foods-table",
+                data=[],
+                filter_action='native',
+                # sort_action='native',
+                # sort_mode='multi',
+                column_selectable='single',
+                row_selectable=False,
+                selected_columns=[],
+                selected_rows=[],
+                page_action='native',
+                page_current=0,
+                page_size=5,
+                style_cell={
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'maxWidth': 0,
+                },
+                style_cell_conditional=[{
+
+                    'textAlign': 'left'
+
+                } for c in ['Name']  # todo: change this
+                ],
+                style_data={
+                    'whiteSpace': 'normal',
+                    'height': 'auto'
+                },
+                style_data_conditional=[{
+                    'if': {'row_index': 'odd'},
+                    'backgroundColor': 'rgb(248,248,248)',
+                }],
+                style_header={
+                    'backgroundColor': 'rgb(230,230,230)',
+                    'fontWeight': 'bold'
+                },
             ),
-            html.Br(),
-        ],width=12)
+        ], width=6)
     ]),
     dbc.Row([
         dbc.Col([
@@ -229,36 +279,7 @@ controls_layout = dbc.Container([
                 n_clicks=0
             )
         ], width=6),
-        dbc.Col([
-            html.Label("datatable of foods for nutrient"),
-            DataTable(
-                id="nutrient-foods-table",
-                data=[],
-                style_cell={
-                    'overflow': 'hidden',
-                    'textOverflow': 'ellipsis',
-                    'maxWidth': 0,
-                },
-                style_cell_conditional=[{
 
-                    'textAlign': 'left'
-
-                } for c in ['Name'] #todo: change this
-                ],
-                style_data={
-                    'whiteSpace': 'normal',
-                    'height': 'auto'
-                },
-                style_data_conditional=[{
-                    'if': {'row_index': 'odd'},
-                    'backgroundColor': 'rgb(248,248,248)',
-                }],
-                style_header={
-                    'backgroundColor': 'rgb(230,230,230)',
-                    'fontWeight': 'bold'
-                },
-            ),
-        ],width=6)
     ]),
 
     dbc.Row([

@@ -7,6 +7,7 @@ from dash_utils.Shiny_utils import (rdi_nutrients, rdi_modelnames_arr, make_food
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,
                                          get_conversions_multiplier, mult_nutrients_df)
 
+
 food_to_id_dict, food_names_arr, food_ids_arr = make_food_to_id_dict()
 
 
@@ -112,7 +113,11 @@ cnf_totals_layout = dbc.Container([
             DataTable(
                 id="cnf-totals-table",
                 data=[],
-
+                style_cell={
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                    'maxWidth': 0,
+                },
                 style_cell_conditional=[{
                     'if': {'column_id': c},
                     'textAlign': 'left'
@@ -127,7 +132,7 @@ cnf_totals_layout = dbc.Container([
                     'fontWeight': 'bold'
                 },
             )
-        ], width=12)
+        ], width=6)
     ])
 ],id='cnf-totals-layout', style={'display': 'none'})
 

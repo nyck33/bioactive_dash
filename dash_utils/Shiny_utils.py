@@ -203,15 +203,15 @@ def get_conversions_multiplier(conversions_df, units):
 def mult_nutrients_df(nutrients_df,curr_multiplier, measure_num, amt):
     new_nutrients_df = nutrients_df.copy()
     new_nutrients_df.set_index('Name', inplace=True, drop=False)
-    multiplier_factor = (float(amt)) / measure_num
-    new_multiplier = multiplier_factor * curr_multiplier
+    multiplier_factor = float((float(amt)) / measure_num)
+    new_multiplier = multiplier_factor * float(curr_multiplier)
 
     # multiply all nutrients by new_multiplier
     for index, row in nutrients_df.iterrows():
         row_val = float(row['Value']) * new_multiplier
         #nutrients_df.row['Value'] = str(new_row_val)
-        row_name = row['Name']
-        new_nutrients_df.loc[[row_name], ['Value']] = str(row_val)
+        nut_name = row['Name']
+        new_nutrients_df.loc[[nut_name], ['Value']] = str(row_val)
 
     return new_nutrients_df
 
