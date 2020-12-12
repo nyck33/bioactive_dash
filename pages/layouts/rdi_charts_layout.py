@@ -3,6 +3,8 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash_table import DataTable
 import plotly.express as px
+import plotly.graph_objects as go
+
 
 from dash_utils.Shiny_utils import (rdi_nutrients, rdi_modelnames_arr, make_food_to_id_dict, get_unit_names,
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,

@@ -27,6 +27,7 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import plotly.express as px
+import plotly.graph_objects as go
 from dash_table import DataTable
 from mongoengine import connect
 
@@ -104,76 +105,9 @@ graph
 cnf based dataframe of food or recipe is sent to callback, compare that with rdi
 '''
 ###########################################################################
-#utilities
-def get_target_col(cnf_nut, cols):
-    target_col = ""
-    for col in cols:
-        if cnf_nut in str(col).lower():
-            target_col = col
-            break
-    return target_col
-
-
-def get_lifestage_idxs(usr_type):
-    # index into rdi_elements_df and get rdi value
-    start_idx = lifestage_idx_dict[usr_type]
-    if usr_type != 'lactating':
-        for i in range(len(lifestage_idxs)):
-            if start_idx == lifestage_idxs[i]:
-                end_idx = lifestage_idxs[i + 1]
-                break
-    else:
-        end_idx = len(rdi_macros_df.index)
-
-    return start_idx, end_idx
-
-
-def find_type(nut_name, dicts_arr):
-    '''
-    dicts_arr: cnf_elems_dicts, cnf_vits_dicts, cnf_macros_dicts
-    '''
-    for match_nuts in dicts_arr:
-        cnf = match_nuts[0]
-        cnf_nut = list(cnf.keys())[0]
-        if cnf_nut != nut_name:
-            continue
-        cnf_units = list(cnf.values())[0]
-        # print(cnf_nut, cnf_units)
-        rdi = match_nuts[1]
-        rdi_nut = list(rdi.keys())[0]
-        rdi_units = list(rdi.values())[0]
-        for rdi_n, rdi_u in rdi_elems_dict.items():
-            if cnf_nut in rdi_n:
-                multiplier = convert_units(cnf_units, rdi_u)
-                return 'element', rdi_n, multiplier
-        for rdi_n, rdi_u in rdi_vits_dict.items():
-            if cnf_nut in rdi_n:
-                multiplier = convert_units(cnf_units, rdi_u)
-                return 'vitamin', rdi_n, multiplier
-        for rdi_n, rdi_u in rdi_macros_dict.items():
-            if cnf_nut in rdi_n:
-                multiplier = convert_units(cnf_units, rdi_u)
-                return 'macronutrient', rdi_n, multiplier
-
-    return "", "", ""
-
-
-def convert_units(cnf_units, rdi_units):
-    '''
-    return multiplier for the cnf nut unit from ingred or recipe df
-    '''
-    if cnf_units == 'mg/d' and rdi_units == 'ug/d':
-        return 1000.
-    elif cnf_units == 'mg/d' and rdi_units == 'g/d':
-        return 0.001
-    elif cnf_units == 'ug/d' and rdi_units == 'mg/d':
-        return 0.001
-    elif cnf_units == 'g/d' and rdi_units == 'mg/d':
-        return 1000.
-    elif cnf_units == 'mg/d' and rdi_units == 'g/d':
-        return 0.001
-    # no conversion return 1
-    return 1.
+#utilities import
+from dash_utils.make_meal_utils import (get_target_col, get_lifestage_idxs,
+                                        find_type, preprocess_cnf_nuts)
 ###########################################################################
 def register_rdi_charts_callbacks(app):
     # update nuts_table btn updates rdi-one figures
@@ -212,9 +146,15 @@ def register_rdi_charts_callbacks(app):
         #calculate percentages
         # get row in each df elem_rdi, vit_rdi, macros_rdi
         for idx, row in ingred_df.iterrows():
+            #todo: need to process and take out brackets, extra words
             cnf_nut = row['Name'].lower()
+            cnf_nut = preprocess_cnf_nuts(cnf_nut)
             cnf_amt = float(row['Value'])
+            # todo: take out micro symbol from units but not used as units
+            # taken from dicts_arrs in def find_type
             cnf_units = row['Units']
+            if '\xb5g' in cnf_units:
+                cnf_units = cnf_units.replace("\xb5g", "ug")
             nut_type, rdi_nut, multiplier = find_type(cnf_nut, cnf_elems_dicts)
             if nut_type=="":
                 nut_type, rdi_nut, multiplier = find_type(cnf_nut, cnf_vits_dicts)
@@ -225,45 +165,54 @@ def register_rdi_charts_callbacks(app):
             start_idx, end_idx = get_lifestage_idxs(usr_type)
             if nut_type =='element':
                 # get slice of df
-                portion = rdi_elems_df.iloc[start_idx:end_idx, :]
+                portion = rdi_elems_df.iloc[start_idx:end_idx, :].astype(str)
                 row = portion[portion['Life-Stage Group'] == usr_life_stg]
                 cols = list(row.columns)
                 target_col = get_target_col(cnf_nut, cols)
-                val = float(row[target_col].item())
-                percent = (cnf_amt * multiplier) / val
+                if row[target_col].item()!= 'nan':
+                    val = float(row[target_col].item())
+                else: #todo: this assumes when nan that any intake fulfills rda
+                    val = cnf_amt
+                percent = ((cnf_amt * multiplier) / val) * 100.
                 # index into elems_df and enter percent
-                plot_cols = elems_df.columns
+                plot_cols = list(elems_df.columns)
                 target_col = get_target_col(cnf_nut, plot_cols)
                 elems_df.loc[0, target_col] = percent
             elif nut_type == 'vitamin':
                 # get slice of df
-                portion = rdi_vits_df.iloc[start_idx:end_idx, :]
+                portion = rdi_vits_df.iloc[start_idx:end_idx, :].astype(str)
                 row = portion[portion['Life-Stage Group'] == usr_life_stg]
                 cols = list(row.columns)
                 target_col = get_target_col(cnf_nut, cols)
-                val = float(row[target_col].item())
-                percent = (cnf_amt * multiplier) / val
+                if row[target_col].item()!= 'nan':
+                    val = float(row[target_col].item())
+                else:
+                    val = cnf_amt
+                percent = ((cnf_amt * multiplier) / val) * 100.
                 # index into vits_df and enter percent
-                plot_cols = vits_df.columns
+                plot_cols = list(vits_df.columns)
                 target_col = get_target_col(cnf_nut, plot_cols)
                 vits_df.loc[0, target_col] = percent
             elif nut_type == 'macronutrient':
                 # get slice of df
-                portion = rdi_macros_df.iloc[start_idx:end_idx, :]
+                portion = rdi_macros_df.iloc[start_idx:end_idx, :].astype(str)
                 row = portion[portion['Life-Stage Group']==usr_life_stg]
                 cols= list(row.columns)
                 target_col = get_target_col(cnf_nut, cols)
-                val = float(row[target_col].item())
-                percent = (cnf_amt * multiplier) / val
+                if row[target_col].item()!= 'nan':
+                    val = float(row[target_col].item())
+                else:
+                    val=cnf_amt
+                percent = ((cnf_amt * multiplier) / val) * 100.
                 #index into macros_df and enter percent
-                plot_cols = macros_df.columns
+                plot_cols = list(macros_df.columns)
                 target_col = get_target_col(cnf_nut, plot_cols)
                 macros_df.loc[0, target_col] = percent
 
-        fig_elems = px.bar(elems_df, x=elems_df.columns.tolist(), y=elems_df.iloc[0])
-        fig_vits = px.bar(vits_df, x=vits_df.columns.tolist(), y=vits_df.iloc[0])
-        fig_macros = px.bar(macros_df, x=macros_df.columns.tolist(), y=macros_df.iloc[0])
 
+        fig_elems = go.Figure([go.Bar(x=list(elems_df.columns), y=list(elems_df.iloc[0]))])
+        fig_vits = go.Figure([go.Bar(x=list(vits_df.columns), y=list(vits_df.iloc[0]))])
+        fig_macros = go.Figure([go.Bar(x=list(macros_df.columns), y=list(macros_df.iloc[0]))])
         return fig_elems, fig_vits, fig_macros
 
     @app.callback(
