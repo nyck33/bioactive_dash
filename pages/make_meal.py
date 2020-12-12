@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 #@author; Nobu Kim
-
+from flask_login import current_user
 import json
 import re
 import pandas as pd
@@ -13,10 +13,8 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash_table import DataTable
-from mongoengine import connect
-#todo: move to app
-#connect to Mongo
-#connect('cnf')
+import plotly.express as px
+
 from server import db_mongo
 
 from dash_utils.make_meal_utils import nut_names_arr
@@ -24,33 +22,6 @@ from dash_utils.make_meal_utils import nut_names_arr
 from models import (
     CNFFoodName, CNFConversionFactor, CNFNutrientAmount,
     CNFYieldAmount, CNFRefuseAmount, CNFNutrientName
-)
-from models.model_nutrients import (
-    ElementsRDI, VitaminsRDI, ElementsUpperRDI,
-    VitaminsUpperRDI, MacronutrientsDistRange
-)
-from models.model_infantsRDI import (
-    InfantsElementsRDI, InfantsVitaminsRDI, InfantsMacroRDI, InfantsElementsUpperRDI, \
-    InfantsVitaminsUpperRDI
-)
-from models.model_childrenRDI import (
-    ChildrenElementsRDI, ChildrenVitaminsRDI, ChildrenMacroRDI, ChildrenElementsUpperRDI, \
-    ChildrenVitaminsUpperRDI
-)
-from models.model_malesRDI import (
-    MalesElementsRDI, MalesVitaminsRDI, MalesMacroRDI, MalesElementsUpperRDI, MalesVitaminsUpperRDI
-)
-from models.model_femalesRDI import (
-    FemalesElementsRDI, FemalesVitaminsRDI, FemalesMacroRDI, FemalesElementsUpperRDI, \
-    FemalesVitaminsUpperRDI
-)
-from models.model_pregnancyRDI import (
-    PregnancyElementsRDI, PregnancyVitaminsRDI, PregnancyMacroRDI, PregnancyElementsUpperRDI, \
-    PregnancyVitaminsUpperRDI
-)
-from models.model_lactationRDI import (
-    LactationElementsRDI, LactationVitaminsRDI, LactationMacroRDI, LactationElementsUpperRDI, \
-    LactationVitaminsUpperRDI
 )
 
 # import the rdi csv table names and filenames arrs
@@ -78,6 +49,7 @@ from functools import wraps
 
 from server import app
 register_make_meal_callbacks(app)
+register_rdi_charts_callbacks(app)
 
 
 login_alert = dbc.Alert(
@@ -109,7 +81,29 @@ nutrients_totals_dict = {
     "Value": ["0" for i in range(num_values)],
     "Units": cnf_nutrient_units_all
 }
-
+'''
+if current_user is not None:
+    if current_user.is_authenticated:
+        first = current_user.first
+        last = current_user.last
+        email = current_user.email
+        age = current_user.age
+        gender = current_user.gender
+        life_stage = current_user.life_stage_grp
+'''
+'''
+    dbc.Row([
+        dbc.Col([
+            html.H5(f"Make a Meal {first}"),
+            html.Div(
+                html.P(f'user: {last}, {email},'
+                       f'{age}'
+                       f'{gender}, {life_stage}'
+                )
+            )
+        ], width=12)
+    ]),
+'''
 controls_layout = dbc.Container([
     dbc.Row([
         dbc.Col([
@@ -135,6 +129,7 @@ controls_layout = dbc.Container([
 
         ], width=12),
     ]),
+
     dbc.Row([
         dbc.Col([
             html.Label("Selected Ingredients"),
@@ -289,8 +284,9 @@ controls_layout = dbc.Container([
                 options=[
                     {'label': 'Nutrient Table for ingredient', 'value': 'cnf-table'},
                     {'label': 'Nutrient Table for all ingredients', 'value': 'cnf-totals-table'},
-                    {'label': 'Bioactive Compounds', 'value': 'bioactive-table'},
                     {'label': 'vs RDI charts', 'value': 'rdi-charts'},
+                    {'label': 'Bioactive Compounds', 'value': 'bioactive-table'},
+                    {'label': 'My Meals', 'value': 'my-meals'}
                 ],
                 value='cnf-table'
             )
@@ -310,7 +306,7 @@ controls_layout = dbc.Container([
 
 
 def layout():
-    full_layout = html.Div([controls_layout, cnf_layout, cnf_totals_layout])
+    full_layout = html.Div([controls_layout, cnf_layout, cnf_totals_layout, rdi_charts_layout])
 
     return full_layout
 

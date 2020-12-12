@@ -49,14 +49,17 @@ def register_make_meal_callbacks(app):
     # updates visibility of containers
     @app.callback(
         [Output('cnf-layout', 'style'),
-         Output('cnf-totals-layout', 'style')],
+         Output('cnf-totals-layout', 'style'),
+         Output('rdi-charts-layout', 'style')],
         [Input('radio-display-type', 'value')]
     )
     def inject_layout(radio_val):
         if radio_val == 'cnf-table':
-            return {'display': 'block'}, {'display': 'none'}
+            return {'display': 'block'}, {'display': 'none'}, {'display':'none'}
         elif radio_val == 'cnf-totals-table':
-            return {'display': 'none'}, {'display': 'block'}
+            return {'display': 'none'}, {'display': 'block'}, {'display':'none'}
+        elif radio_val == 'rdi-charts':
+            return {'display':'none'}, {'display': 'none'}, {'display': 'block'}
         return no_update, no_update
 
     @app.callback(
@@ -332,7 +335,7 @@ def register_make_meal_callbacks(app):
                nuts_totals_json, cnf_totals_table_data, cnf_totals_table_cols
 
     ######################################################################################
-        # find foods by nutrient
+    # find foods by nutrient
     @app.callback(
         [Output('nutrient-foods-table', 'data'),
          Output('nutrient-foods-table', 'columns'),
@@ -340,7 +343,6 @@ def register_make_meal_callbacks(app):
          Output('nutrient-foods-store', 'data')],
         [Input('search-by-nut-btn', 'n_clicks')],
         [State('search-nutrient-foods', 'value')]
-
     )
     def show_nutrient_foods(search_clicks, nut_name):
         if search_clicks <=0:

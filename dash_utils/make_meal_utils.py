@@ -23,5 +23,7 @@ nut_table_names = nut_engine.table_names()
 
 #nutrient names from the above
 
-nut_names_arr = [nut_name.replace("_foods", "") for nut_name in nut_table_names]
+nut_names_arr = [nut_name.replace("_foods", "") for nut_name in nut_table_names
+                    if 'user' not in nut_name]
+
 
