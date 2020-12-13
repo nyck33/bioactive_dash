@@ -169,7 +169,8 @@ def register_rdi_charts_callbacks(app):
                 row = portion[portion['Life-Stage Group'] == usr_life_stg]
                 cols = list(row.columns)
                 target_col = get_target_col(cnf_nut, cols)
-                if row[target_col].item()!= 'nan':
+                target_val = row[target_col].item()
+                if target_val != 'nan' and target_val != 'ND':
                     val = float(row[target_col].item())
                 else: #todo: this assumes when nan that any intake fulfills rda
                     val = cnf_amt
@@ -184,7 +185,8 @@ def register_rdi_charts_callbacks(app):
                 row = portion[portion['Life-Stage Group'] == usr_life_stg]
                 cols = list(row.columns)
                 target_col = get_target_col(cnf_nut, cols)
-                if row[target_col].item()!= 'nan':
+                target_val = row[target_col].item()
+                if target_val != 'nan' and target_val != 'ND':
                     val = float(row[target_col].item())
                 else:
                     val = cnf_amt
@@ -199,7 +201,8 @@ def register_rdi_charts_callbacks(app):
                 row = portion[portion['Life-Stage Group']==usr_life_stg]
                 cols= list(row.columns)
                 target_col = get_target_col(cnf_nut, cols)
-                if row[target_col].item()!= 'nan':
+                target_val = row[target_col].item()
+                if target_val!= 'nan' and target_val!='ND':
                     val = float(row[target_col].item())
                 else:
                     val=cnf_amt
