@@ -17,12 +17,9 @@ from mongoengine import connect
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String
 import pymysql
 
+# for foods by nutrients
 nut_engine = create_engine("mysql+pymysql://root:tennis33@localhost/dashcnf?charset=utf8mb4")#, echo=True)
-
 nut_table_names = nut_engine.table_names()
-
-#nutrient names from the above
-
 nut_names_arr = [nut_name.replace("_foods", "") for nut_name in nut_table_names
                     if 'user' not in nut_name]
 
@@ -159,3 +156,70 @@ def color_bars(df):
         else:
             colors.append('rgb(192,192,192)')
     return colors
+
+meal_type_arr = ['breakfast', 'lunch', 'dinner', 'brunch', 'snack',
+                 'dessert', 'cheat']
+
+from datetime import date, datetime
+
+
+def make_cumul_ingreds_ui():
+    """
+    build Datatable, save meal btn, dropdown for meal type
+
+    """
+    today = datetime.today().strftime('%Y-%m-%d')
+    date_arr = today.split('-')
+    year = int(date_arr[0])
+    month = int(date_arr[1])
+    day = int(date_arr[2])
+
+    # up to a year ago
+    now = datetime.now()
+    last_year = now.year - 1
+    next_year = now.year + 1
+
+    cumul_ingreds_ui = html.Div([
+        #datatable fits here
+        dcc.Dropdown(
+            id='meal-type-dropdown',
+            options=[{'label':meal, 'value': meal} for meal in meal_type_arr],
+            value=meal_type_arr[0]
+        ),
+        html.Br(),
+        dcc.DatePickerSingle(
+            id='meal-date-picker',
+            min_date_allowed=date(last_year, 1, 1),
+            max_date_allowed=date(next_year, 12, 31),
+            initial_visible_month=date(year, month, day),
+            date=date(year, month, day)
+        ),
+        html.Div(id='save-confirm'), #see save details here before button
+        dbc.Button(
+            "Save Meal",
+            id='save-meal-btn'
+        )
+    ])
+
+    return cumul_ingreds_ui
+
+'''
+html.H3("Recipe Ingredients"),
+        html.Br(),
+        DataTable(  # ingredient, amt, units
+            id='cumul-ingreds-table',
+            data=df.to_dict('records'),
+            columns=[{"name":i, "id":i} for i in df.columns],
+            row_deletable=True,
+            style_cell={'textAlign': 'left'},
+            style_data_conditional=[{
+                'if': {'row_index': 'odd'},
+                'backgroundColor': 'rgb(248,248,248)'
+            }],
+            style_header={
+                'backgroundColor': 'rgb(230,230,230)',
+                'fontWeight': 'bold'
+            },
+        ),
+        html.Br(),
+'''

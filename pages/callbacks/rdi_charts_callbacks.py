@@ -31,7 +31,7 @@ import plotly.graph_objects as go
 from dash_table import DataTable
 from mongoengine import connect
 
-from dash_utils.Shiny_utils import (rdi_nutrients, rdi_modelnames_arr, make_food_to_id_dict, get_unit_names,
+from dash_utils.Shiny_utils import (rdi_nutrients, make_food_to_id_dict, get_unit_names,
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,
                                          get_conversions_multiplier, mult_nutrients_df)
 
@@ -235,7 +235,14 @@ def register_rdi_charts_callbacks(app):
         fig_macros.update_layout(title_text="macronutrients for ingredient")
         return fig_elems, fig_vits, fig_macros
 
+    def check_macros_dist_range():
+        """
+        9 calories per fat gram so multiply and divid by KCal
+        to get percentage.  Fiber for infants is also ND.
+        Then map against upper range of macro-dist-range which is missing.
 
+        """
+        pass
     @app.callback(
         [Output('cnf-vs-rdi-totals-elements', 'figure'),
          Output('cnf-vs-rdi-totals-vitamins', 'figure'),

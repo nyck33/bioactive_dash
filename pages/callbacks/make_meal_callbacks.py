@@ -13,14 +13,16 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash_table import DataTable
 from mongoengine import connect
-from dash_utils.make_meal_utils import nut_engine
+from dash_utils.make_meal_utils import nut_engine, make_cumul_ingreds_ui
+from utilities.config import engine as user_engine
+from flask_login import current_user
 
 from models import (
     CNFFoodName, CNFConversionFactor, CNFNutrientAmount,
     CNFYieldAmount, CNFRefuseAmount, CNFNutrientName
 )
 
-from dash_utils.Shiny_utils import (rdi_nutrients, rdi_modelnames_arr, make_food_to_id_dict, get_unit_names,
+from dash_utils.Shiny_utils import (rdi_nutrients, make_food_to_id_dict, get_unit_names,
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,
                                          get_conversions_multiplier, mult_nutrients_df)
 # used in layout for datalist
@@ -173,6 +175,7 @@ def register_make_meal_callbacks(app):
     @app.callback(
         [Output('cumul-ingreds-table', 'data'),
          Output('cumul-ingreds-table', 'columns')],
+        Output('cumul-ingreds-ui', 'children'),
         [Input('hidden-cumul-ingreds-df', 'children')]
     )
     def update_cumul_ingreds_table(cumul_ingreds_json):
@@ -187,8 +190,10 @@ def register_make_meal_callbacks(app):
             cumul_ingreds_cols = [{"name": i, "id": i} for i in cumul_ingreds_df.columns]
             cumul_ingreds_data = cumul_ingreds_df.to_dict('records')
 
-        return cumul_ingreds_data, cumul_ingreds_cols
-
+        #build button, dropdown, date selector UI
+        cumul_ingreds_ui = make_cumul_ingreds_ui()
+        return cumul_ingreds_data, cumul_ingreds_cols, cumul_ingreds_ui
+        #return make_cumul_ingreds_ui(cumul_ingreds_df)
     # update cumul ingreds df
     @app.callback(
         [Output('hidden-cumul-ingreds-df', 'children'),
@@ -197,6 +202,7 @@ def register_make_meal_callbacks(app):
          Output('cnf-totals-table', 'columns')], #new
         [Input('add-ingredient', 'n_clicks'), #same
          Input('cumul-ingreds-table','data')],
+         #Input({'type':'cumul-ingreds-table', 'index': ALL}, 'value')],
         [State('hidden-cumul-ingreds-df', 'children'),
          State('search-ingredient', 'value'),
          State("numerical-amount", "value"), #this is an int, conver to str
@@ -224,7 +230,7 @@ def register_make_meal_callbacks(app):
             'triggered': ctx.triggered,
             'inputs': ctx.inputs
         }, indent=2)
-        if add_clicks <= 0:
+        if add_clicks <= 0 and cumul_ingreds_json is None:
             return no_update, no_update, no_update, no_update, no_update, no_update
         # make a dict of current ingred, amt, units and append
         if trigger == "add-ingredient":
@@ -279,7 +285,8 @@ def register_make_meal_callbacks(app):
 
             # return this to hidden div
             new_cumul_ingreds_json = new_cumul_ingreds_df.to_json(date_format='iso', orient='split', index=False)
-
+            #debug
+            print(cumul_ingreds_json)
             return new_cumul_ingreds_json, \
                     nuts_totals_json, cnf_totals_table_data, cnf_totals_table_cols
 
@@ -356,6 +363,25 @@ def register_make_meal_callbacks(app):
         nut_foods_json = nut_foods_df.to_json(date_format='iso', orient='split', index=False)
 
         return nut_foods_table_data, nut_foods_table_cols, 'single', nut_foods_json
+
+    @app.callback(
+        [Output('meal-saved-msg', 'children')],
+        [Input('save-meal-btn', 'n_clicks')],
+        [State('hidden-cumul-ingreds-df', 'data')]
+    )
+    def save_meal(save_clicks, recipe_json):
+        """
+        process json to df, add cols for user_id, meal_id after query, prepare
+        new df for append to mysql, call df.to_sql()
+        return additional UI components to select meal type, add this column
+
+        """
+        if current_user.is_authenticated:
+            user_id = current_user.id
+
+        recipe_df = pd.read_json(recipe_json, orient='split')
+
+        pass
 
 
 

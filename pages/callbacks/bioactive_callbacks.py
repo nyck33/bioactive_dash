@@ -14,7 +14,7 @@ import dash_html_components as html
 from dash_table import DataTable
 from mongoengine import connect
 
-from dash_utils.Shiny_utils import (rdi_nutrients, rdi_modelnames_arr, make_food_to_id_dict, get_unit_names,
+from dash_utils.Shiny_utils import (rdi_nutrients, make_food_to_id_dict, get_unit_names,
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,
                                          get_conversions_multiplier, mult_nutrients_df)
 

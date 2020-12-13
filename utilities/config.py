@@ -8,7 +8,7 @@ import pymysql
 
 #engine = create_engine(config.get('database', 'con'))
 # echo=True show SQL in console
-config_str = "mysql+pymysql://root:tennis33@localhost/dashcnf?charset=utf8mb4"
+config_str = "mysql+pymysql://root:tennis33@localhost/dash_user?charset=utf8mb4"
 engine = create_engine(config_str, echo=True)
 
 '''

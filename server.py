@@ -37,9 +37,10 @@ db_mongo.init_app(server)
 db.init_app(server)
 
 # for testing mongo connection
+'''
 from models import (
     CNFFoodName, CNFConversionFactor, CNFNutrientAmount,
-    CNFYieldAmount, CNFRefuseAmount
+    CNFYieldAmount, CNFRefuseAmount, CNFNutrientName
 )
 
 
@@ -54,6 +55,7 @@ def test_db():
         if count > 10:
             break
 test_db()
+'''
 
 # Setup the LoginManager for the server
 login_manager = LoginManager()

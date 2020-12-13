@@ -17,33 +17,7 @@ from models import (
     CNFFoodName, CNFConversionFactor, CNFNutrientAmount,
         CNFYieldAmount, CNFRefuseAmount, CNFNutrientName
 )
-from models.model_nutrients import (
-            ElementsRDI, VitaminsRDI, ElementsUpperRDI,
-            VitaminsUpperRDI, MacronutrientsDistRange
-        )
-from models.model_infantsRDI import (
-    InfantsElementsRDI, InfantsVitaminsRDI, InfantsMacroRDI, InfantsElementsUpperRDI,\
-        InfantsVitaminsUpperRDI
-)
-from models.model_childrenRDI import (
-    ChildrenElementsRDI, ChildrenVitaminsRDI, ChildrenMacroRDI, ChildrenElementsUpperRDI,\
-        ChildrenVitaminsUpperRDI
-)
-from models.model_malesRDI import (
-    MalesElementsRDI, MalesVitaminsRDI, MalesMacroRDI, MalesElementsUpperRDI, MalesVitaminsUpperRDI
-)
-from models.model_femalesRDI import (
-    FemalesElementsRDI, FemalesVitaminsRDI, FemalesMacroRDI, FemalesElementsUpperRDI,\
-        FemalesVitaminsUpperRDI
-)
-from models.model_pregnancyRDI import (
-    PregnancyElementsRDI, PregnancyVitaminsRDI, PregnancyMacroRDI, PregnancyElementsUpperRDI,\
-        PregnancyVitaminsUpperRDI
-)
-from models.model_lactationRDI import (
-    LactationElementsRDI, LactationVitaminsRDI, LactationMacroRDI, LactationElementsUpperRDI,\
-        LactationVitaminsUpperRDI
-)
+
 
 # todo: use this for cumulation
 rdi_nutrients = {
@@ -58,25 +32,6 @@ rdi_nutrients = {
     'riboflavin': "", 'niacin': "", 'vitaminB6': "", 'folate': "", 'vitaminB12': "",
     'pantothenicAcid': "", 'biotin': "", 'choline': ""
 }
-
-rdi_modelnames_arr = [
-    'MacronutrientsDistRange',
-    'InfantsElementsRDI', 'InfantsVitaminsRDI', 'InfantsMacroRDI', 'InfantsElementsUpperRDI',
-    'InfantsVitaminsUpperRDI',
-    'ChildrenElementsRDI', 'ChildrenVitaminsRDI', 'ChildrenMacroRDI',
-    'ChildrenElementsUpperRDI',
-    'ChildrenVitaminsUpperRDI',
-    'MalesElementsRDI', 'MalesVitaminsRDI', 'MalesMacroRDI', 'MalesElementsUpperRDI',
-    'MalesVitaminsUpperRDI',
-    'FemalesElementsRDI', 'FemalesVitaminsRDI', 'FemalesMacroRDI', 'FemalesElementsUpperRDI',
-    'FemalesVitaminsUpperRDI',
-    'PregnancyElementsRDI', 'PregnancyVitaminsRDI', 'PregnancyMacroRDI',
-    'PregnancyElementsUpperRDI',
-    'PregnancyVitaminsUpperRDI',
-    'LactationElementsRDI', 'LactationVitaminsRDI', 'LactationMacroRDI',
-    'LactationElementsUpperRDI',
-    'LactationVitaminsUpperRDI'
-]
 
 def make_food_to_id_dict():
     """

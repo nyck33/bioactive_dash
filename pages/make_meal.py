@@ -16,21 +16,19 @@ from dash_table import DataTable
 import plotly.express as px
 import plotly.graph_objects as go
 
-
-from server import db_mongo
-
-from dash_utils.make_meal_utils import nut_names_arr
-
+from server import (db_mongo)
 from models import (
     CNFFoodName, CNFConversionFactor, CNFNutrientAmount,
     CNFYieldAmount, CNFRefuseAmount, CNFNutrientName
 )
 
+from dash_utils.make_meal_utils import nut_names_arr
+
 # import the rdi csv table names and filenames arrs
 from dash_utils.Dash_App_utils import (table_names_arr, csv_names_arr, make_dataframes,
                                             make_table, make_figure)
 
-from dash_utils.Shiny_utils import (rdi_nutrients, rdi_modelnames_arr, make_food_to_id_dict, get_unit_names,
+from dash_utils.Shiny_utils import (rdi_nutrients, make_food_to_id_dict, get_unit_names,
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,
                                          get_conversions_multiplier, mult_nutrients_df)
 
@@ -83,29 +81,7 @@ nutrients_totals_dict = {
     "Value": ["0" for i in range(num_values)],
     "Units": cnf_nutrient_units_all
 }
-'''
-if current_user is not None:
-    if current_user.is_authenticated:
-        first = current_user.first
-        last = current_user.last
-        email = current_user.email
-        age = current_user.age
-        gender = current_user.gender
-        life_stage = current_user.life_stage_grp
-'''
-'''
-    dbc.Row([
-        dbc.Col([
-            html.H5(f"Make a Meal {first}"),
-            html.Div(
-                html.P(f'user: {last}, {email},'
-                       f'{age}'
-                       f'{gender}, {life_stage}'
-                )
-            )
-        ], width=12)
-    ]),
-'''
+
 controls_layout = dbc.Container([
     dbc.Row([
         dbc.Col([
@@ -149,6 +125,7 @@ controls_layout = dbc.Container([
                     'fontWeight': 'bold'
                 },
             ),
+            html.Div(id='cumul-ingreds-ui')
         ], width=12)
     ]),
     dbc.Row([
@@ -248,11 +225,6 @@ controls_layout = dbc.Container([
                 id="update-nut-table-btn",
                 color='success'
             ),
-            dbc.Button(
-                "Show %RDI for ingredient",
-                id='%rdi-ingredient-btn',
-                color='warning'
-            ),
             html.Br(),
             html.Br(),
             dbc.Button(
@@ -303,6 +275,8 @@ def layout():
     full_layout = html.Div([controls_layout, cnf_layout, cnf_totals_layout, rdi_charts_layout])
 
     return full_layout
+
+
 
 
 '''
