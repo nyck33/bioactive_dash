@@ -107,7 +107,8 @@ cnf based dataframe of food or recipe is sent to callback, compare that with rdi
 ###########################################################################
 #utilities import
 from dash_utils.make_meal_utils import (get_target_col, get_lifestage_idxs,
-                                        find_type, preprocess_cnf_nuts)
+                                        find_type, preprocess_cnf_nuts,
+                                        color_bars)
 ###########################################################################
 def register_rdi_charts_callbacks(app):
     # update nuts_table btn updates rdi-one figures
@@ -135,6 +136,7 @@ def register_rdi_charts_callbacks(app):
 
         if ingred_json is None:
             return no_update, no_update, no_update
+                
         # Name Value Units
         ingred_df = pd.read_json(ingred_json, orient='split')
         print(ingred_df)
@@ -212,11 +214,27 @@ def register_rdi_charts_callbacks(app):
                 target_col = get_target_col(cnf_nut, plot_cols)
                 macros_df.loc[0, target_col] = percent
 
+        #style chart
+        elem_colors = color_bars(elems_df)
+        vits_colors = color_bars(vits_df)
+        macros_colors = color_bars(macros_df)
 
-        fig_elems = go.Figure([go.Bar(x=list(elems_df.columns), y=list(elems_df.iloc[0]))])
-        fig_vits = go.Figure([go.Bar(x=list(vits_df.columns), y=list(vits_df.iloc[0]))])
-        fig_macros = go.Figure([go.Bar(x=list(macros_df.columns), y=list(macros_df.iloc[0]))])
+        fig_elems = go.Figure(data=[go.Bar(
+                    x=list(elems_df.columns),
+                    y=list(elems_df.iloc[0]),
+                    marker_color=elem_colors
+        )])
+        fig_elems.update_layout(title_text='elements for ingredient')
+        fig_vits = go.Figure(data=[go.Bar(x=list(vits_df.columns),
+                                     y=list(vits_df.iloc[0]),
+                                     marker_color=vits_colors)])
+        fig_vits.update_layout(title_text='vitamins for ingredient')
+        fig_macros = go.Figure(data=[go.Bar(x=list(macros_df.columns),
+                                       y=list(macros_df.iloc[0]),
+                                       marker_color=macros_colors)])
+        fig_macros.update_layout(title_text="macronutrients for ingredient")
         return fig_elems, fig_vits, fig_macros
+
 
     @app.callback(
         [Output('cnf-vs-rdi-totals-elements', 'figure'),
@@ -224,5 +242,111 @@ def register_rdi_charts_callbacks(app):
          Output('cnf-vs-rdi-totals-macro', 'figure')],
         [Input('hidden-total-nutrients-df', 'data')]
     )
-    def update_recipe_charts(total_nuts_json):
-        pass
+    def update_recipe_charts(recipe_json):
+        usr_life_stg = ''
+        usr_type = ''
+        if current_user.is_authenticated:
+            usr_life_stg = current_user.lifestage_grp
+            usr_type = current_user.person_type
+
+        if recipe_json is None:
+            return no_update, no_update, no_update
+
+        # Name Value Units
+        recipe_df = pd.read_json(recipe_json, orient='split')
+        print(recipe_df)
+        # df of nuts by category with field values as %
+        elems_df = pd.DataFrame(columns=list(rdi_elems_dict.keys()))
+        vits_df = pd.DataFrame(columns=list(rdi_vits_dict.keys()))
+        macros_df = pd.DataFrame(columns=list(rdi_macros_dict.keys()))
+
+        # calculate percentages
+        # get row in each df elem_rdi, vit_rdi, macros_rdi
+        for idx, row in recipe_df.iterrows():
+            # todo: need to process and take out brackets, extra words
+            cnf_nut = row['Name'].lower()
+            cnf_nut = preprocess_cnf_nuts(cnf_nut)
+            cnf_amt = float(row['Value'])
+            # todo: take out micro symbol from units but not used as units
+            # taken from dicts_arrs in def find_type
+            cnf_units = row['Units']
+            if '\xb5g' in cnf_units:
+                cnf_units = cnf_units.replace("\xb5g", "ug")
+            nut_type, rdi_nut, multiplier = find_type(cnf_nut, cnf_elems_dicts)
+            if nut_type == "":
+                nut_type, rdi_nut, multiplier = find_type(cnf_nut, cnf_vits_dicts)
+            if nut_type == "":
+                nut_type, rdi_nut, multiplier = find_type(cnf_nut, cnf_macros_dicts)
+
+            # get start and exclusive end idx of rdi_df
+            start_idx, end_idx = get_lifestage_idxs(usr_type)
+            if nut_type == 'element':
+                # get slice of df
+                portion = rdi_elems_df.iloc[start_idx:end_idx, :].astype(str)
+                row = portion[portion['Life-Stage Group'] == usr_life_stg]
+                cols = list(row.columns)
+                target_col = get_target_col(cnf_nut, cols)
+                target_val = row[target_col].item()
+                if target_val != 'nan' and target_val != 'ND':
+                    val = float(row[target_col].item())
+                else:  # todo: this assumes when nan that any intake fulfills rda
+                    val = cnf_amt
+                percent = ((cnf_amt * multiplier) / val) * 100.
+                # index into elems_df and enter percent
+                plot_cols = list(elems_df.columns)
+                target_col = get_target_col(cnf_nut, plot_cols)
+                elems_df.loc[0, target_col] = percent
+            elif nut_type == 'vitamin':
+                # get slice of df
+                portion = rdi_vits_df.iloc[start_idx:end_idx, :].astype(str)
+                row = portion[portion['Life-Stage Group'] == usr_life_stg]
+                cols = list(row.columns)
+                target_col = get_target_col(cnf_nut, cols)
+                target_val = row[target_col].item()
+                if target_val != 'nan' and target_val != 'ND':
+                    val = float(row[target_col].item())
+                else:
+                    val = cnf_amt
+                percent = ((cnf_amt * multiplier) / val) * 100.
+                # index into vits_df and enter percent
+                plot_cols = list(vits_df.columns)
+                target_col = get_target_col(cnf_nut, plot_cols)
+                vits_df.loc[0, target_col] = percent
+            elif nut_type == 'macronutrient':
+                # get slice of df
+                portion = rdi_macros_df.iloc[start_idx:end_idx, :].astype(str)
+                row = portion[portion['Life-Stage Group'] == usr_life_stg]
+                cols = list(row.columns)
+                target_col = get_target_col(cnf_nut, cols)
+                target_val = row[target_col].item()
+                if target_val != 'nan' and target_val != 'ND':
+                    val = float(row[target_col].item())
+                else:
+                    val = cnf_amt
+                percent = ((cnf_amt * multiplier) / val) * 100.
+                # index into macros_df and enter percent
+                plot_cols = list(macros_df.columns)
+                target_col = get_target_col(cnf_nut, plot_cols)
+                macros_df.loc[0, target_col] = percent
+
+        #style chart
+        elem_colors = color_bars(elems_df)
+        vits_colors = color_bars(vits_df)
+        macros_colors = color_bars(macros_df)
+
+        fig_elems = go.Figure(data=[go.Bar(
+                    x=list(elems_df.columns),
+                    y=list(elems_df.iloc[0]),
+                    marker_color=elem_colors
+        )])
+        fig_elems.update_layout(title_text='elements for recipe')
+        fig_vits = go.Figure(data=[go.Bar(x=list(vits_df.columns),
+                                     y=list(vits_df.iloc[0]),
+                                     marker_color=vits_colors)])
+        fig_vits.update_layout(title_text='vitamins for recipe')
+        fig_macros = go.Figure(data=[go.Bar(x=list(macros_df.columns),
+                                       y=list(macros_df.iloc[0]),
+                                       marker_color=macros_colors)])
+        fig_macros.update_layout(title_text="macronutrients for recipe")
+
+        return fig_elems, fig_vits, fig_macros

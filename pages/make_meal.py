@@ -176,19 +176,12 @@ controls_layout = dbc.Container([
             ),
             html.Br(),
             html.Label('Or Choose Ingredient by Nutrient'), #filter here for plant-based
-            dcc.Input(
-                id="search-nutrient-foods",
-                list="nutrient_names",
-                placeholder='Enter nutrient name',
-                debounce=True,
-                style={'width': '100%'}
+            dcc.Dropdown(
+                id='search-nutrient-foods',
+                options=[{'label': nut, 'value': nut} for nut in nut_names_arr],
+                value=nut_names_arr[0]
             ),
-            html.Datalist(
-                id="nutrient_names",
-                children=[
-                    html.Option(value=nutrient) for nutrient in nut_names_arr
-                ]
-            ),
+
             html.Br(),
             dbc.Button(
                 "Search by Nutrient",
@@ -197,7 +190,6 @@ controls_layout = dbc.Container([
             )
         ],width=6),
         dbc.Col([
-            html.Label("datatable of foods for nutrient"),
             DataTable(
                 id="nutrient-foods-table",
                 data=[],
@@ -210,7 +202,7 @@ controls_layout = dbc.Container([
                 selected_rows=[],
                 page_action='native',
                 page_current=0,
-                page_size=5,
+                page_size=8,
                 style_cell={
                     'overflow': 'hidden',
                     'textOverflow': 'ellipsis',
@@ -313,4 +305,20 @@ def layout():
     return full_layout
 
 
+'''
+# replaced with D
+            dcc.Input(
+                id="search-nutrient-foods",
+                list="nutrient_names",
+                placeholder='Enter nutrient name',
+                debounce=True,
+                style={'width': '100%'}
+            ),
+            html.Datalist(
+                id="nutrient_names",
+                children=[
+                    html.Option(value=nutrient) for nutrient in nut_names_arr
+                ]
+            ),
+'''
 

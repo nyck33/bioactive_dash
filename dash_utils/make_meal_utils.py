@@ -142,3 +142,20 @@ def preprocess_cnf_nuts(nut):
         nut = 'fiber'
 
     return nut
+
+def color_bars(df):
+    colors = []
+    cols = list(df.columns)
+    for col in cols:
+        val = float(df.loc[0,col])
+        if val >= 100.:
+            colors.append('rgb(255,0,0)')
+        elif 100. > val >= 80.:
+            colors.append('rgb(255,128,0)')
+        elif 80. > val >= 60.:
+            colors.append('rgb(0,255,0)')
+        elif 60. > val >= 40.:
+            colors.append('rgb(0,0,255)')
+        else:
+            colors.append('rgb(192,192,192)')
+    return colors
