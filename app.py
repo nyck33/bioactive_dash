@@ -3,12 +3,12 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
-import plotly.express as px
+import json
+from dash import no_update
 
 from flask import redirect
 from server import app, server
 from flask_login import logout_user, current_user
-
 
 # app pages
 from pages import (
@@ -49,6 +49,10 @@ header = dbc.Navbar(
 app.layout = html.Div(
     [
         header,
+        #todo: hack and store the current_user
+        dcc.Store(
+            id='current-user-store', storage_type='session'
+        ),
         html.Div(
             [
                 dbc.Container(
@@ -91,6 +95,7 @@ def router(pathname):
     # app pages
     elif pathname == '/' or pathname=='/home' or pathname=='/home':
         if current_user.is_authenticated:
+            #user_id = current_user.id
             return home.layout()
     elif pathname == '/profile' or pathname=='/profile':
         if current_user.is_authenticated:
@@ -111,16 +116,26 @@ def router(pathname):
 
 
 @app.callback(
-    Output('user-name', 'children'),
+    [Output('current-user-store', 'data'),
+    Output('user-name', 'children')],
     [Input('page-content', 'children')])
 def profile_link(content):
     '''
     returns a navbar link to the user profile if the user is authenticated
     '''
     if current_user.is_authenticated:
-        return html.Div(current_user.first)
+        user_dict = {
+            'id': current_user.id,
+            'email': current_user.email,
+            'age': current_user.age,
+            'person_type': current_user.person_type,
+            'lifestage_grp': current_user.lifestage_grp
+        }
+        user_json = json.dumps(user_dict)
+
+        return user_json, html.Div(current_user.first)
     else:
-        return ''
+        return no_update, ''
 
 
 @app.callback(

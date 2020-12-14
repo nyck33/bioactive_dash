@@ -85,23 +85,23 @@ controls_layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             dcc.Store(  # todo: hide dataframes as json
-                id="hidden-conversions-df", storage_type='memory'
+                id="hidden-conversions-df", storage_type='session'
             ),
             dcc.Store(
-                id="hidden-nutrients-df", storage_type='memory'
+                id="hidden-nutrients-df", storage_type='session'
             ),
             dcc.Store(
-                id="hidden-cumul-ingreds-df", storage_type='memory'
+                id="hidden-cumul-ingreds-df", storage_type='session'
             ),
             dcc.Store(
-                id='hidden-total-nutrients-df', storage_type='memory'
+                id='hidden-total-nutrients-df', storage_type='session'
 
             ),
             dcc.Store(  # todo: trigger on selecting age and lifestage group
-                id="hidden-rdi-df", storage_type='memory'
+                id="hidden-rdi-df", storage_type='session'
             ),
             dcc.Store(
-                id='nutrient-foods-store', storage_type='memory'
+                id='nutrient-foods-store', storage_type='session'
             )
 
         ], width=12),
