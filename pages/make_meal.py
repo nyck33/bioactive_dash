@@ -8,7 +8,6 @@ import re
 import pandas as pd
 from dash import Dash, exceptions, no_update, callback_context
 from dash.dependencies import Input, Output, State
-from dash_utils.Dash_fun import apply_layout_with_auth
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
@@ -125,7 +124,7 @@ controls_layout = dbc.Container([
                     'fontWeight': 'bold'
                 },
             ),
-            html.Div(id='cumul-ingreds-ui')
+            html.Div(id='cumul-ingreds-ui'),
         ], width=12)
     ]),
     dbc.Row([

@@ -58,9 +58,9 @@ def strip_units(nuts_arr):
 def get_df_cols(df_name):
     cols = []
     for cnf_nut in cnf_nuts_dict.keys():
-        # print(cnf_nut)
+        # #print(cnf_nut)
         for rdi_elem in rdi_units_dict.keys():
-            # print(rdi_elem)
+            # #print(rdi_elem)
             if cnf_nut in rdi_elem:
                 cols.append(cnf_nut)
 
@@ -89,19 +89,19 @@ nuts_totals_dict = {
 }
 cnf_units_arr = [x.replace("\xb5g", "ug") for x in cnf_nutrient_units_all]
 cnf_units_arr = [x.replace(x, f'{x}/d') for x in cnf_units_arr]
-print(len(cnf_units_arr))
-print(cnf_units_arr)
+#print(len(cnf_units_arr))
+#print(cnf_units_arr)
 
 #dict of {cnf_nut: cnf_units}
 cnf_arr = []
 for nut in nuts_totals_dict['Name']:
     cnf_arr.append(nut.lower())
-#print(len(cnf_arr))
-#print(cnf_arr)
+##print(len(cnf_arr))
+##print(cnf_arr)
 cnf_nuts_dict = dict(zip(cnf_arr, cnf_units_arr))
 #for nut, units in cnf_nuts_dict.items():
 #for nut, units in cnf_nuts_dict.items():
- #   print(f'{nut}:{units}')
+ #   #print(f'{nut}:{units}')
 
 with_units_arr = []
 for nut, unit in cnf_nuts_dict.items():
@@ -114,20 +114,20 @@ for nut, unit in cnf_nuts_dict.items():
     with_units_arr.append(nut)
 
 #for k,v in cnf_nuts_dict.items():
-    #print(f'{k}:{v}')
-#print(with_units_arr)
-#print(nuts_totals_dict['Name'], len(nuts_totals_dict['Name']))
+    ##print(f'{k}:{v}')
+##print(with_units_arr)
+##print(nuts_totals_dict['Name'], len(nuts_totals_dict['Name']))
 cnf_nuts_dict = dict(zip(with_units_arr, cnf_units_arr))
 
-for nut, units in cnf_nuts_dict.items():
-    print(f'{nut}:{units}')
+#for nut, units in cnf_nuts_dict.items():
+    #print(f'{nut}:{units}')
 
 #rdi df_dict, #read from sql since csv's have alpha symbol
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String
 import pymysql
 rdi_engine = create_engine("mysql+pymysql://root:tennis33@localhost/rdi_db?charset=utf8mb4")#, echo=True)
 
-print(rdi_engine.table_names())
+#print(rdi_engine.table_names())
 
 import pandas as pd
 df_dict = {}
@@ -137,9 +137,9 @@ for name in rdi_engine.table_names():
         sql = "SELECT * from " + name
         df = pd.read_sql_query(sql, rdi_engine)
         df_dict[name] = df
-        print(f'{name}\n{df}')
+        #print(f'{name}\n{df}')
 
-print(len(df_dict))
+#print(len(df_dict))
 
 # get lists of rdi_elements, rdi_vitamins, rdi_macros
 elements_df = df_dict['elements_rdi']
@@ -148,39 +148,39 @@ macros_df = df_dict['macronutrients_rdi']
 
 rdi_elements = [x.lower() for x in elements_df.columns.tolist() if x != "Life-Stage Group"]
 rdi_elems_dict = strip_units(rdi_elements)
-print(len(rdi_elements))
-print(len(rdi_elems_dict))
-for nut, units in rdi_elems_dict.items():
-    print(f'{nut}:{units}')
+#print(len(rdi_elements))
+#print(len(rdi_elems_dict))
+#for nut, units in rdi_elems_dict.items():
+    #print(f'{nut}:{units}')
 
 rdi_vitamins = [x.lower() for x in vitamins_df.columns.tolist() if x != "Life-Stage Group"]
 rdi_vits_dict = strip_units(rdi_vitamins)
-print(len(rdi_vitamins))
-print(len(rdi_vits_dict))
-for nut, units in rdi_vits_dict.items():
-    print(f'{nut}:{units}')
+#print(len(rdi_vitamins))
+#print(len(rdi_vits_dict))
+#for nut, units in rdi_vits_dict.items():
+    #print(f'{nut}:{units}')
 
 rdi_macros = [x.lower() for x in macros_df.columns.tolist() if x != "Life-Stage Group"]
 rdi_macros_dict = strip_units(rdi_macros)
-print(len(rdi_macros))
-print(len(rdi_macros_dict))
-for nut, units in rdi_macros_dict.items():
-    print(f'{nut}:{units}')
+#print(len(rdi_macros))
+#print(len(rdi_macros_dict))
+#for nut, units in rdi_macros_dict.items():
+    #print(f'{nut}:{units}')
 
 # get all rdi nutrients
 rdi_nuts_arr = []
 for k, df in df_dict.items():
     for rdi_nut in df.columns.tolist():
         if rdi_nut != "Life-Stage Group":
-            # print(rdi_nut)
+            # #print(rdi_nut)
             if "Carbohydrates" in rdi_nut:
-                print('here!')
+                #print('here!')
                 rdi_nuts_arr.append("carbohydrate (g/d)")
                 continue
             if rdi_nut not in rdi_nuts_arr:
                 rdi_nuts_arr.append(rdi_nut.lower())
 
-print(rdi_nuts_arr)
+#print(rdi_nuts_arr)
 
 # take out extra word like total
 rdi_arr = []
@@ -192,7 +192,7 @@ for nut in rdi_nuts_arr:
     else:
         rdi_arr.append(nut)
 
-print(rdi_arr)
+#print(rdi_arr)
 
 # strip the units out
 # dict {nut: units}
@@ -219,8 +219,8 @@ for nut in rdi_arr:
         new_nut = nut
         rdi_units_dict[new_nut] = ''
 
-for nut, units in rdi_units_dict.items():
-    print(f'{nut}:{units}')
+#for nut, units in rdi_units_dict.items():
+    #print(f'{nut}:{units}')
 
 '''
 #compare incoming cnf data with rdi benchmarks
@@ -251,9 +251,9 @@ for nut, units in cnf_nuts_dict.items():
     exact = False
     convert = False
 
-print(len(exacts), exacts)
-print(f'\n\nconvert: {len(converts)}\n{converts}')
-print(f'\n\nno match:{len(not_match)}\n{not_match}')
+#print(len(exacts), exacts)
+#print(f'\n\nconvert: {len(converts)}\n{converts}')
+#print(f'\n\nno match:{len(not_match)}\n{not_match}')
 
 cnf_elems_dicts, cnf_vits_dicts, cnf_macros_dicts = [], [], []
 
@@ -262,7 +262,7 @@ for match in exacts:
 
     cnf_nut = list(cnf.keys())[0]
     cnf_units = list(cnf.values())[0]
-    # print(cnf_nut, cnf_units)
+    # #print(cnf_nut, cnf_units)
     rdi = match[1]
     rdi_nut = list(rdi.keys())[0]
     rdi_units = list(rdi.values())[0]
@@ -279,6 +279,6 @@ for match in exacts:
             cnf_macros_dicts.append([{cnf_nut: cnf_units}, {rdi_nut: rdi_units}])
             continue
 
-print(len(cnf_elems_dicts), len(cnf_vits_dicts), len(cnf_macros_dicts))
-print(cnf_elems_dicts, cnf_vits_dicts, cnf_macros_dicts)
+#print(len(cnf_elems_dicts), len(cnf_vits_dicts), len(cnf_macros_dicts))
+#print(cnf_elems_dicts, cnf_vits_dicts, cnf_macros_dicts)
 

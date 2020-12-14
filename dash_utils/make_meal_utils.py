@@ -194,7 +194,11 @@ def make_cumul_ingreds_ui():
             initial_visible_month=date(year, month, day),
             date=date(year, month, day)
         ),
-        html.Div(id='save-confirm'), #see save details here before button
+        html.Div(
+            html.P(
+                id='save-confirm-msg'
+            )
+        ), #see save details here before button
         dbc.Button(
             "Save Meal",
             id='save-meal-btn'
@@ -202,6 +206,8 @@ def make_cumul_ingreds_ui():
     ])
 
     return cumul_ingreds_ui
+
+
 
 '''
 html.H3("Recipe Ingredients"),

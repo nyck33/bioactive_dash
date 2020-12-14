@@ -7,20 +7,20 @@ import re
 import pandas as pd
 from dash import Dash, exceptions, no_update, callback_context
 from dash.dependencies import Input, Output, State
-from dash_utils.Dash_fun import apply_layout_with_auth
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash_table import DataTable
-from mongoengine import connect
-from dash_utils.make_meal_utils import nut_engine, make_cumul_ingreds_ui
 from utilities.config import engine as user_engine
 from flask_login import current_user
+from sqlalchemy import select, Table, Column, String, MetaData
+from datetime import datetime, date
 
 from models import (
     CNFFoodName, CNFConversionFactor, CNFNutrientAmount,
     CNFYieldAmount, CNFRefuseAmount, CNFNutrientName
 )
+from dash_utils.make_meal_utils import nut_engine, make_cumul_ingreds_ui
 
 from dash_utils.Shiny_utils import (rdi_nutrients, make_food_to_id_dict, get_unit_names,
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,
@@ -176,7 +176,7 @@ def register_make_meal_callbacks(app):
         [Output('cumul-ingreds-table', 'data'),
          Output('cumul-ingreds-table', 'columns')],
         Output('cumul-ingreds-ui', 'children'),
-        [Input('hidden-cumul-ingreds-df', 'children')]
+        [Input('hidden-cumul-ingreds-df', 'data')]
     )
     def update_cumul_ingreds_table(cumul_ingreds_json):
         if cumul_ingreds_json is None:
@@ -196,14 +196,14 @@ def register_make_meal_callbacks(app):
         #return make_cumul_ingreds_ui(cumul_ingreds_df)
     # update cumul ingreds df
     @app.callback(
-        [Output('hidden-cumul-ingreds-df', 'children'),
+        [Output('hidden-cumul-ingreds-df', 'data'),
         Output('hidden-total-nutrients-df', 'data'), #new
          Output('cnf-totals-table', 'data'), #new
          Output('cnf-totals-table', 'columns')], #new
         [Input('add-ingredient', 'n_clicks'), #same
          Input('cumul-ingreds-table','data')],
          #Input({'type':'cumul-ingreds-table', 'index': ALL}, 'value')],
-        [State('hidden-cumul-ingreds-df', 'children'),
+        [State('hidden-cumul-ingreds-df', 'data'),
          State('search-ingredient', 'value'),
          State("numerical-amount", "value"), #this is an int, conver to str
          State('units-dropdown', 'value'),
@@ -224,7 +224,7 @@ def register_make_meal_callbacks(app):
         ctx = callback_context
         # get id of trigger
         trigger = ctx.triggered[0]['prop_id'].split(".")[0]
-        print(f"cum-ingreds-tbl trigger: {trigger}")
+        #print(f"cum-ingreds-tbl trigger: {trigger}")
         ctx_msg = json.dumps({
             'states': ctx.states,
             'triggered': ctx.triggered,
@@ -307,6 +307,9 @@ def register_make_meal_callbacks(app):
             #del_row_data is a list of dicts or dict? check when remaining is 3 vs 1
             cumul_ingreds_df = pd.DataFrame(del_row_data)
             cumul_ingreds_json = cumul_ingreds_df.to_json(date_format='iso', orient='split', index=False)
+            # todo: for multiple when reading
+            # recipe_df_arr = []
+            # for cumul_ingreds_df in recipe_df_arr:
             for index, row in cumul_ingreds_df.iterrows():
                 #get first ingred
                 curr_ingred = row['Ingredient']
@@ -365,23 +368,92 @@ def register_make_meal_callbacks(app):
         return nut_foods_table_data, nut_foods_table_cols, 'single', nut_foods_json
 
     @app.callback(
-        [Output('meal-saved-msg', 'children')],
+        Output('save-confirm-msg', 'children'),
         [Input('save-meal-btn', 'n_clicks')],
-        [State('hidden-cumul-ingreds-df', 'data')]
+        [State('hidden-cumul-ingreds-df', 'data'),
+        State('meal-date-picker', 'date'),
+        State('meal-type-dropdown', 'value')]
     )
-    def save_meal(save_clicks, recipe_json):
+    def save_meal(save_clicks, recipe_json, date_val, meal_type):
         """
         process json to df, add cols for user_id, meal_id after query, prepare
         new df for append to mysql, call df.to_sql()
         return additional UI components to select meal type, add this column
 
         """
+        if save_clicks is None or save_clicks <=0:
+            return no_update
+        # process date_val
+        if date_val is not None:
+            date_obj = date.fromisoformat(date_val)
+            date_str = date_obj.strftime('%Y-%m-%d')
+        else:
+            #back up
+            now = datetime.now()
+            date_str = now.strftime('%Y-%m-%d')
+
+        conn = user_engine.connect()
+        metadata = MetaData()
+        user_id = -1
         if current_user.is_authenticated:
             user_id = current_user.id
+            user_email = current_user.email
 
-        recipe_df = pd.read_json(recipe_json, orient='split')
+        ingreds_df = pd.read_json(recipe_json, orient='split')
 
-        pass
+        # make meals df
+        meal_df = pd.DataFrame(columns=['user_id', 'meal_type', 'timestamp'])
+        meal_df.loc[0, 'user_id'] = user_id #(int)
+        meal_df.loc[0, 'meal_type'] = meal_type
+        meal_df.loc[0, 'timestamp'] = date_str
+
+        meal_df.to_sql(name='user_meals', con=user_engine, if_exists='append', index=False)
+        #query to get meal_id
+        user_meals = Table('user_meals', metadata, autoload=True, autoload_with=user_engine)
+        stmt = select([user_meals])
+        #todo: this could break when all 3 conditions the same
+        stmt = stmt.where(user_meals.columns.user_id == user_id and
+                          user_meals.columns.timestamp == date_str and
+                          user_meals.columns.meal_type == meal_type)
+        results = conn.execute(stmt).fetchall()
+        meal_id = -1
+        for res in results:
+            meal_id = res.meal_id
+
+        #add col to ingreds_df
+        ingreds_df['meal_id'] = pd.Series(meal_id, index=ingreds_df.index)
+        #reorder cols
+        reordered_cols = ['meal_id', 'Ingredient', 'Amount', 'Units']
+        ingreds_df = ingreds_df[reordered_cols]
+        #rename
+        ingreds_df.columns = ['meal_id', 'ingred_name', 'ingred_amt', 'ingred_units']
+        ingreds_df.to_sql(name='user_ingreds', con=user_engine, if_exists='append', index=False)
+
+        return f'Saved meal id {meal_id} for {user_id}'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

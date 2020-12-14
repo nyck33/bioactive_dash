@@ -139,7 +139,7 @@ def register_rdi_charts_callbacks(app):
                 
         # Name Value Units
         ingred_df = pd.read_json(ingred_json, orient='split')
-        print(ingred_df)
+        #print(ingred_df)
         # df of nuts by category with field values as %
         elems_df = pd.DataFrame(columns=list(rdi_elems_dict.keys()))
         vits_df = pd.DataFrame(columns=list(rdi_vits_dict.keys()))
@@ -261,7 +261,7 @@ def register_rdi_charts_callbacks(app):
 
         # Name Value Units
         recipe_df = pd.read_json(recipe_json, orient='split')
-        print(recipe_df)
+        #print(recipe_df)
         # df of nuts by category with field values as %
         elems_df = pd.DataFrame(columns=list(rdi_elems_dict.keys()))
         vits_df = pd.DataFrame(columns=list(rdi_vits_dict.keys()))
