@@ -163,9 +163,19 @@ controls_layout = dbc.Container([
                 "Search by Nutrient",
                 id='search-by-nut-btn',
                 color='primary'
+            ),
+            html.Br(),
+            html.Br(),
+            dbc.Button(
+                "get my alternates",
+                id='get-alts-btn',
+                color='warning'
             )
         ],width=6),
         dbc.Col([
+            html.Div(
+                id='alt-ingreds-display'
+            ),
             DataTable(
                 id="nutrient-foods-table",
                 data=[],

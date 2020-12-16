@@ -25,6 +25,9 @@ from dash_utils.make_meal_utils import nut_engine, make_cumul_ingreds_ui
 from dash_utils.Shiny_utils import (rdi_nutrients, make_food_to_id_dict, get_unit_names,
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,
                                          get_conversions_multiplier, mult_nutrients_df)
+
+from dash_utils.my_meals_utils import (make_datatable)
+
 # used in layout for datalist
 food_to_id_dict, food_names_arr, food_ids_arr = make_food_to_id_dict()
 
@@ -433,7 +436,41 @@ def register_make_meal_callbacks(app):
 
         return f'Saved meal id {meal_id} for {user_id}'
 
+    @app.callback(
+        Output('alt-ingreds-display', 'children'),
+        Input('get-alts-btn', 'n_clicks')
+    )
+    def show_alts_on_make_meal(btn_clicks):
+        if btn_clicks is None or btn_clicks <=0:
+            return no_update
 
+        user_id = -1
+        if current_user.is_authenticated:
+            user_id = current_user.id
+
+        conn = user_engine.connect()
+        metadata = MetaData()
+
+        alt_ingreds = Table('user_alt_ingreds', metadata, autoload=True, autoload_with=user_engine)
+
+        stmt = select([alt_ingreds])
+
+        stmt = stmt.where(alt_ingreds.columns.user_id==user_id)
+
+        results = conn.execute(stmt).fetchall()
+
+        alts_df = pd.DataFrame(columns=['previous', 'alternate'])
+        i = 0
+        for res in results:
+            alts_df.loc[i, 'previous'] = res.prev_ingred
+            alts_df.loc[i, 'alternate'] = res.alt_ingred
+            i+=1
+
+        alts_tbl = make_datatable('alt-ingreds-tbl-1', alts_df, 'single')
+
+        return html.Div(
+            alts_tbl
+        )
 
 
 
