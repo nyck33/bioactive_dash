@@ -85,6 +85,14 @@ per_selection_layout = dbc.Container([
                 # to see which ingred should be substituted, on selection,
                 # output alt ingred
             ),
+
+        ], width=12)
+    ])
+], id="per-selection-layout", style={'display': 'none'})
+
+alt_ingreds_layout = dbc.Container([
+    dbc.Row([
+        dbc.Col([
             html.Div(
                 id='ingred-rdi-chart-out'
                 # output table for selected ingred above
@@ -96,10 +104,9 @@ per_selection_layout = dbc.Container([
                 # selectable to see rdi of each
             ),
             html.Div(
-                id='rdi-chart-alt-ingred'
+                id='rdi-chart-alt-ingred-out'
                 # rdi chart for alt ingred selected above
             ),
         ], width=12)
     ])
-], id="per-selection-layout", style={'display': 'none'})
-
+], id='alt-ingreds-layout', style={'display': 'none'})

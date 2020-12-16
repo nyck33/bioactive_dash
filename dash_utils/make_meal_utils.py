@@ -38,6 +38,7 @@ from dash_utils.nut_match_cnf_rdi import (
     cnf_elems_dicts, cnf_vits_dicts, cnf_macros_dicts
 )
 
+
 rdi_elems_df = df_dict['elements_rdi']
 rdi_vits_df = df_dict['vitamins_rdi']
 rdi_macros_df = df_dict['macronutrients_rdi']
@@ -192,7 +193,7 @@ def make_cumul_ingreds_ui():
         dcc.Textarea(
             id='meal-desc',
             placeholder='mabo tofu with plant-based beef, white rice, miso soup',
-            style={'width': '100%', 'height': 200}
+            style={'width': '100%', 'height': 100}
         ),
         dcc.DatePickerSingle(
             id='meal-date-picker',
@@ -213,6 +214,8 @@ def make_cumul_ingreds_ui():
     ])
 
     return cumul_ingreds_ui
+
+
 
 
 

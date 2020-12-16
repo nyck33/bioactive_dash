@@ -34,7 +34,8 @@ from dash_utils.Shiny_utils import (rdi_nutrients, make_food_to_id_dict, get_uni
 from .callbacks.my_meals_callbacks import (register_my_meals_callbacks)
 from .layouts.my_meals_layout import (my_meals_layout,
                                       period_layout,
-                                    per_selection_layout)
+                                    per_selection_layout,
+                                    alt_ingreds_layout)
 from server import app
 register_my_meals_callbacks(app)
 
@@ -72,6 +73,7 @@ def layout():
     full_layout = html.Div([
         my_meals_layout,
         period_layout,
-        per_selection_layout
+        per_selection_layout,
+        alt_ingreds_layout
     ])
     return full_layout
