@@ -181,17 +181,26 @@ def make_alt_ingreds_ui(ingreds_table):
     return ingreds_tbl_ui
 
 
-def make_save_alts_ui(alt_ingreds_str):
+def make_save_alts_ui(alt_ingreds_str, alt_ingreds_arr_json):
     alt_ingreds_ui = html.Div([
+        dcc.Store(
+            id='alt-ingreds-json',
+            storage_type='session',
+            data=alt_ingreds_arr_json
+        ),
         html.Div(
             html.P(
-                alt_ingreds_str
+                alt_ingreds_str,
+                id='alt-ingreds-str'
             )
         ),
         dbc.Button(
             "save alternates",
-            id='save-alternates-btn',
+            id='save-alts-btn',
             color='primary'
+        ),
+        html.Div(
+            id='alts-saved-msg'
         )
     ])
 

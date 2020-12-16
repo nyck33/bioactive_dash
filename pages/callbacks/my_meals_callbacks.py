@@ -14,9 +14,9 @@ from dash_table import DataTable
 
 import plotly.graph_objects as go
 
-from utilities.config import engine as engine
+from utilities.config import engine
 from flask_login import current_user
-from sqlalchemy import select, Table, Column, String, MetaData
+from sqlalchemy import select, Table, Column, String, MetaData, insert
 from datetime import datetime, date
 
 from models import (
@@ -300,9 +300,12 @@ def register_my_meals_callbacks(app):
                 curr_food = '_'.join(x for x in curr_food_arr)
                 cleaned_foods.append(curr_food)
             else:
-                cleaned_foods.append(food)
+                #food.strip()
+                strip_food = food.replace(" ", "")
+                cleaned_foods.append(strip_food)
         print(cleaned_foods)
         foods_str = ",".join(x for x in cleaned_foods)
+        print(foods_str)
         #allergies is a list of strings so join and need allergies=
         allergies_str = ""
         if isinstance(allergies, list):
@@ -320,9 +323,58 @@ def register_my_meals_callbacks(app):
         print(res_dict)
         # get arr
         updated_ingreds = res_dict['response']['updated_ingredients']
+        alt_ingreds_json = json.dumps(updated_ingreds)
         # convert
         updated_ingreds_str = ','.join(x for x in updated_ingreds)
 
-        save_alts_ui = make_save_alts_ui(updated_ingreds_str)
+        save_alts_ui = make_save_alts_ui(updated_ingreds_str, alt_ingreds_json)
 
         return save_alts_ui, 'coming soon' #rdi chart for alts not ready
+
+    @app.callback(
+        Output('alts-saved-msg', 'children'),
+        Input('save-alts-btn', 'n_clicks'),
+        State('alt-ingreds-json', 'data')
+    )
+    def save_alt_ingreds_mysql(n_clicks, alt_json):
+        if n_clicks is None or n_clicks <= 0:
+            return no_update
+
+        user_id = -1
+        if current_user.is_authenticated:
+            user_id = current_user.id
+
+        alt_ingreds_arr = json.loads(alt_json)
+        # {prev: alt}
+        alt_dict = {}
+        for phrase in alt_ingreds_arr:
+            if 'previously:' in phrase:
+                prev_v_alt = phrase.split('(')
+                prev = prev_v_alt[0]
+                #drop whitespace at end
+                prev = prev[:-1]
+                alt = prev_v_alt[1].replace(")", "")
+                alt = alt.replace("previously:", "")[1:]
+                alt_dict[prev] = alt
+
+        conn = engine.connect()
+        metadata = MetaData()
+        alt_ingreds = Table('user_alt_ingreds', metadata, autoload=True, autoload_with=engine)
+
+        for prev, alt in alt_dict.items():
+
+            stmt = insert(alt_ingreds).values(user_id=user_id,
+                                          prev_ingred=prev,
+                                            alt_ingred=alt)
+            res_proxy = conn.execute(stmt)
+            print(res_proxy.rowcount)
+
+        save_msg = """
+            alternate ingredients saved, 
+            refer to them on make meal page
+            when you make your next meal"""
+
+        return save_msg
+
+
+
