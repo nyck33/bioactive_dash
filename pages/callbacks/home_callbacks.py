@@ -12,8 +12,8 @@ from sqlalchemy import MetaData, select, Table, insert
 #make queries to get current lifestage data
 
 from server import app
-from pages.layouts.user_prof_layout import (user_prof_layout,
-person_type_arr, life_stage_arr)
+from pages.layouts.home_layout import (user_prof_layout,
+                                       person_type_arr, life_stage_arr)
 
 def register_home_callbacks(app):
     @app.callback(

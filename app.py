@@ -15,6 +15,7 @@ from pages import (
     home,
     profile,
     make_meal,
+    my_meals,
     page1,
 )
 
@@ -35,6 +36,7 @@ header = dbc.Navbar(
                     dbc.NavItem(dbc.NavLink("Home", href="/home")),
                     dbc.NavItem(dbc.NavLink("Page1", href="/page1")),
                     dbc.NavItem(dbc.NavLink("Make Meal", href="/make-meal")),
+                    dbc.NavItem(dbc.NavLink("My Meals", href='/my-meals')),
                     dbc.NavItem(dbc.NavLink(id='user-name',href='/profile')),
                     dbc.NavItem(dbc.NavLink('Login',id='user-action',href='Login'))
                 ]
@@ -106,6 +108,9 @@ def router(pathname):
     elif pathname == '/make-meal' or pathname=='/make-meal':
         if current_user.is_authenticated:
             return make_meal.layout()
+    elif pathname == '/my-meals' or pathname=='/my-meals':
+        if current_user.is_authenticated:
+            return my_meals.layout()
 
     # DEFAULT LOGGED IN: /home
     if current_user.is_authenticated:

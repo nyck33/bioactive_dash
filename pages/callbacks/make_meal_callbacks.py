@@ -372,9 +372,10 @@ def register_make_meal_callbacks(app):
         [Input('save-meal-btn', 'n_clicks')],
         [State('hidden-cumul-ingreds-df', 'data'),
         State('meal-date-picker', 'date'),
-        State('meal-type-dropdown', 'value')]
+        State('meal-type-dropdown', 'value'),
+         State('meal-desc', 'value')]
     )
-    def save_meal(save_clicks, recipe_json, date_val, meal_type):
+    def save_meal(save_clicks, recipe_json, date_val, meal_type, meal_desc):
         """
         process json to df, add cols for user_id, meal_id after query, prepare
         new df for append to mysql, call df.to_sql()
@@ -402,19 +403,20 @@ def register_make_meal_callbacks(app):
         ingreds_df = pd.read_json(recipe_json, orient='split')
 
         # make meals df
-        meal_df = pd.DataFrame(columns=['user_id', 'meal_type', 'timestamp'])
+        meal_df = pd.DataFrame(columns=['user_id', 'meal_type', 'meal_desc', 'timestamp'])
         meal_df.loc[0, 'user_id'] = user_id #(int)
         meal_df.loc[0, 'meal_type'] = meal_type
+        meal_df.loc[0, 'meal_desc'] = meal_desc
         meal_df.loc[0, 'timestamp'] = date_str
 
         meal_df.to_sql(name='user_meals', con=user_engine, if_exists='append', index=False)
-        #query to get meal_id
+        #query to get meal_id of meal just uploaded
         user_meals = Table('user_meals', metadata, autoload=True, autoload_with=user_engine)
         stmt = select([user_meals])
         #todo: this could break when all 3 conditions the same
         stmt = stmt.where(user_meals.columns.user_id == user_id and
                           user_meals.columns.timestamp == date_str and
-                          user_meals.columns.meal_type == meal_type)
+                          user_meals.columns.meal_desc == meal_desc)
         results = conn.execute(stmt).fetchall()
         meal_id = -1
         for res in results:

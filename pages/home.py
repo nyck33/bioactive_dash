@@ -6,8 +6,8 @@ from dash import no_update
 import time
 
 from server import app
-from .layouts.user_prof_layout import (user_prof_layout,
-person_type_arr, life_stage_arr)
+from .layouts.home_layout import (user_prof_layout,
+                                  person_type_arr, life_stage_arr)
 
 from .callbacks.home_callbacks import register_home_callbacks
 register_home_callbacks(app)

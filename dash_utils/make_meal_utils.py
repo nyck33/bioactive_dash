@@ -165,8 +165,9 @@ from datetime import date, datetime
 
 def make_cumul_ingreds_ui():
     """
-    build Datatable, save meal btn, dropdown for meal type
-
+    build Datatable, save meal btn, dropdown for meal type,
+    add textarea for description or title for meal to use on nutritionix api
+    and quick reference on my_meals when pulling from mysql
     """
     today = datetime.today().strftime('%Y-%m-%d')
     date_arr = today.split('-')
@@ -187,6 +188,12 @@ def make_cumul_ingreds_ui():
             value=meal_type_arr[0]
         ),
         html.Br(),
+        html.Label('Enter description of recipe or meal'),
+        dcc.Textarea(
+            id='meal-desc',
+            placeholder='mabo tofu with plant-based beef, white rice, miso soup',
+            style={'width': '100%', 'height': 200}
+        ),
         dcc.DatePickerSingle(
             id='meal-date-picker',
             min_date_allowed=date(last_year, 1, 1),

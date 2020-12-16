@@ -249,19 +249,19 @@ def register_rdi_charts_callbacks(app):
          Output('cnf-vs-rdi-totals-macro', 'figure')],
         [Input('hidden-total-nutrients-df', 'data')]
     )
-    def update_recipe_charts(recipe_json):
+    def update_total_nuts_charts(total_nuts_json):
         usr_life_stg = ''
         usr_type = ''
         if current_user.is_authenticated:
             usr_life_stg = current_user.lifestage_grp
             usr_type = current_user.person_type
 
-        if recipe_json is None:
+        if total_nuts_json is None:
             return no_update, no_update, no_update
 
         # Name Value Units
-        recipe_df = pd.read_json(recipe_json, orient='split')
-        #print(recipe_df)
+        total_nuts_df = pd.read_json(total_nuts_json, orient='split')
+        #print(total_nuts_df)
         # df of nuts by category with field values as %
         elems_df = pd.DataFrame(columns=list(rdi_elems_dict.keys()))
         vits_df = pd.DataFrame(columns=list(rdi_vits_dict.keys()))
@@ -269,7 +269,7 @@ def register_rdi_charts_callbacks(app):
 
         # calculate percentages
         # get row in each df elem_rdi, vit_rdi, macros_rdi
-        for idx, row in recipe_df.iterrows():
+        for idx, row in total_nuts_df.iterrows():
             # todo: need to process and take out brackets, extra words
             cnf_nut = row['Name'].lower()
             cnf_nut = preprocess_cnf_nuts(cnf_nut)
