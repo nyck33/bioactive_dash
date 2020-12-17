@@ -102,9 +102,10 @@ def register_home_callbacks(app):
         Input('lifestage-btn', 'n_clicks'),
         [State('profile-age-input', 'value'),
         State('person-type-dropdown', 'value'),
-         State('lifestage-dropdown', 'value')]
+         State('lifestage-dropdown', 'value'),
+         State('active-lvl-dropdown', 'value')]
     )
-    def save_lifestage(save_clicks, age, person, lifestage):
+    def save_lifestage(save_clicks, age, person, lifestage, active_level):
         user_id = -1
         if save_clicks is None or save_clicks <=0:
             return no_update
@@ -115,10 +116,11 @@ def register_home_callbacks(app):
         metadata=MetaData()
         user = Table('user', metadata, autoload=True, autoload_with=engine)
         stmt = user.update().where(user.columns.id==user_id).\
-            values(age=age, person_type=person, lifestage_grp=lifestage)
+            values(age=age, person_type=person, lifestage_grp=lifestage,
+                   active_level=active_level)
         conn.execute(stmt)
         save_confirm_msg = ''
-        save_confirm_msg = f'updated {age}, {person}, {lifestage}'
+        save_confirm_msg = f'updated {age}, {person}, {lifestage}, {active_level}'
 
         return save_confirm_msg
 
@@ -138,13 +140,15 @@ def register_home_callbacks(app):
         stmt = select([user])
         stmt = stmt.where(user.columns.id==user_id)
         result = conn.execute(stmt).fetchall()
-        age, person_type, lifestage = '', '', ''
+        age, person_type, lifestage, active_level = '', '', '', ''
         for res in result:
             age = res.age
             person_type = res.person_type
             lifestage = res.lifestage_grp
+            active_level = res.active_level
 
-        current_lifestage_str = f'Current Stats: Age: {age}, Type: {person_type}, Lifestage: {lifestage} '
+        current_lifestage_str = f'Current Stats: Age: {age}, Type: {person_type}, Lifestage: {lifestage}, ' \
+                                f'Active Level {active_level} '
 
         return current_lifestage_str
 

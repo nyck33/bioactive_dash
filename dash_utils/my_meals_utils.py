@@ -89,7 +89,8 @@ lifestage_idx_dict = {
 #utilities import
 from dash_utils.make_meal_utils import (get_target_col, get_lifestage_idxs,
                                         find_type, preprocess_cnf_nuts,
-                                        color_bars)
+                                        color_bars,
+                                        fill_nut_df)
 ####################################################
 #functions
 # todo: make date range rdi chart:
@@ -181,28 +182,20 @@ def build_period_rdi_chart(nuts_totals_df, start_date=None,
     # calc num days
     if start_date is not None and end_date is not None:
         delta = end_date - start_date
-        num_days = delta.days
+        num_days = float(delta.days)
         print(f'num days: {num_days}')
     else:
-        num_days = 1
+        num_days = 1.
+
     usr_life_stg = ''
     usr_type = ''
-
+    usr_age = ''
+    usr_active_lvl = ""
     if current_user.is_authenticated:
         usr_life_stg = current_user.lifestage_grp
         usr_type = current_user.person_type
-
-    # todo: index into each rdi_df and get col vals and multiply by num days
-    rdi_e_df = rdi_elems_df.copy()
-    rdi_v_df = rdi_vits_df.copy()
-    rdi_mac_df = rdi_macros_df.copy()
-
-    # https://stackoverflow.com/a/38543323/14767913
-    # this only keeps the number cols and drops Life-Stage and others
-    # rdi_e_df= rdi_e_df[rdi_e_df.select_dtypes(include=['number']).columns] * num_days
-    # rdi_v_df= rdi_v_df[rdi_v_df.select_dtypes(include=['number']).columns] * num_days
-    # rdi_mac_df= rdi_mac_df[rdi_mac_df.select_dtypes(include=['number']).columns] * num_days
-    # todo: iterate df and multiply by num_days
+        usr_age = current_user.age
+        usr_active_lvl = current_user.active_level
 
     # df of nuts by category with field values as %
     elems_df = pd.DataFrame(columns=list(rdi_elems_dict.keys()))
@@ -229,54 +222,22 @@ def build_period_rdi_chart(nuts_totals_df, start_date=None,
         # get start and exclusive end idx of rdi_df
         start_idx, end_idx = get_lifestage_idxs(usr_type)
         if nut_type == 'element':
-            # get slice of df
-            portion = rdi_e_df.iloc[start_idx:end_idx, :].astype(str)
-            row = portion[portion['Life-Stage Group'] == usr_life_stg]
-            cols = list(row.columns)
-            target_col = get_target_col(cnf_nut, cols)
-            target_val = row[target_col].item()
-            if target_val != 'nan' and target_val != 'ND':
-                # todo: could multiply num_days here
-                val = float(row[target_col].item()) * float(num_days)
-            else:  # todo: this assumes when nan that any intake fulfills rda
-                val = cnf_amt
-            percent = ((cnf_amt * multiplier) / val) * 100.
-            # index into elems_df and enter percent
-            plot_cols = list(elems_df.columns)
-            target_col = get_target_col(cnf_nut, plot_cols)
-            elems_df.loc[0, target_col] = percent
+            elems_df = fill_nut_df(nut_type, start_idx, end_idx, usr_life_stg,
+                        cnf_nut, cnf_amt, multiplier,
+                        elems_df,
+                        usr_type, usr_age, usr_active_lvl, num_days)
+
         elif nut_type == 'vitamin':
-            # get slice of df
-            portion = rdi_v_df.iloc[start_idx:end_idx, :].astype(str)
-            row = portion[portion['Life-Stage Group'] == usr_life_stg]
-            cols = list(row.columns)
-            target_col = get_target_col(cnf_nut, cols)
-            target_val = row[target_col].item()
-            if target_val != 'nan' and target_val != 'ND':
-                val = float(row[target_col].item()) * float(num_days)
-            else:
-                val = cnf_amt
-            percent = ((cnf_amt * multiplier) / val) * 100.
-            # index into vits_df and enter percent
-            plot_cols = list(vits_df.columns)
-            target_col = get_target_col(cnf_nut, plot_cols)
-            vits_df.loc[0, target_col] = percent
+            vits_df = fill_nut_df(nut_type, start_idx, end_idx, usr_life_stg,
+                        cnf_nut, cnf_amt, multiplier,
+                        vits_df,
+                        usr_type, usr_age, usr_active_lvl, num_days)
+
         elif nut_type == 'macronutrient':
-            # get slice of df
-            portion = rdi_mac_df.iloc[start_idx:end_idx, :].astype(str)
-            row = portion[portion['Life-Stage Group'] == usr_life_stg]
-            cols = list(row.columns)
-            target_col = get_target_col(cnf_nut, cols)
-            target_val = row[target_col].item()
-            if target_val != 'nan' and target_val != 'ND':
-                val = float(row[target_col].item()) * float(num_days)
-            else:
-                val = cnf_amt
-            percent = ((cnf_amt * multiplier) / val) * 100.
-            # index into macros_df and enter percent
-            plot_cols = list(macros_df.columns)
-            target_col = get_target_col(cnf_nut, plot_cols)
-            macros_df.loc[0, target_col] = percent
+            macros_df = fill_nut_df(nut_type, start_idx, end_idx, usr_life_stg,
+                        cnf_nut, cnf_amt, multiplier,
+                        macros_df,
+                        usr_type, usr_age, usr_active_lvl, num_days)
 
     # make bar charts and html.Div containing them, return
     # style chart
@@ -301,7 +262,7 @@ def build_period_rdi_chart(nuts_totals_df, start_date=None,
 
     figs_div = html.Div([
         dcc.Graph(
-            figure=fig_elems, #todo: reuse of function means need new id's
+            figure=fig_elems,
             id=elem_fig_id
         ),
         dcc.Graph(

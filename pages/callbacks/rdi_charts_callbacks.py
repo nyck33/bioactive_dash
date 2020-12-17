@@ -108,7 +108,7 @@ cnf based dataframe of food or recipe is sent to callback, compare that with rdi
 #utilities import
 from dash_utils.make_meal_utils import (get_target_col, get_lifestage_idxs,
                                         find_type, preprocess_cnf_nuts,
-                                        color_bars)
+                                        color_bars, fill_nut_df)
 ###########################################################################
 def register_rdi_charts_callbacks(app):
     # update nuts_table btn updates rdi-one figures
@@ -130,9 +130,13 @@ def register_rdi_charts_callbacks(app):
     def update_ingred_charts(ingred_json):
         usr_life_stg = ''
         usr_type = ''
+        usr_active_lvl = ''
+        usr_age = ""
         if current_user.is_authenticated:
             usr_life_stg = current_user.lifestage_grp
             usr_type = current_user.person_type
+            usr_active_lvl = current_user.active_level
+            usr_age = current_user.age
 
         if ingred_json is None:
             return no_update, no_update, no_update
@@ -166,53 +170,21 @@ def register_rdi_charts_callbacks(app):
             # get start and exclusive end idx of rdi_df
             start_idx, end_idx = get_lifestage_idxs(usr_type)
             if nut_type =='element':
-                # get slice of df
-                portion = rdi_elems_df.iloc[start_idx:end_idx, :].astype(str)
-                row = portion[portion['Life-Stage Group'] == usr_life_stg]
-                cols = list(row.columns)
-                target_col = get_target_col(cnf_nut, cols)
-                target_val = row[target_col].item()
-                if target_val != 'nan' and target_val != 'ND':
-                    val = float(row[target_col].item())
-                else: #todo: this assumes when nan that any intake fulfills rda
-                    val = cnf_amt
-                percent = ((cnf_amt * multiplier) / val) * 100.
-                # index into elems_df and enter percent
-                plot_cols = list(elems_df.columns)
-                target_col = get_target_col(cnf_nut, plot_cols)
-                elems_df.loc[0, target_col] = percent
+                elems_df = fill_nut_df(nut_type, start_idx, end_idx,
+                                       usr_life_stg, cnf_nut, cnf_amt,
+                                       multiplier, elems_df,
+                                       usr_type, usr_age, usr_active_lvl)
             elif nut_type == 'vitamin':
-                # get slice of df
-                portion = rdi_vits_df.iloc[start_idx:end_idx, :].astype(str)
-                row = portion[portion['Life-Stage Group'] == usr_life_stg]
-                cols = list(row.columns)
-                target_col = get_target_col(cnf_nut, cols)
-                target_val = row[target_col].item()
-                if target_val != 'nan' and target_val != 'ND':
-                    val = float(row[target_col].item())
-                else:
-                    val = cnf_amt
-                percent = ((cnf_amt * multiplier) / val) * 100.
-                # index into vits_df and enter percent
-                plot_cols = list(vits_df.columns)
-                target_col = get_target_col(cnf_nut, plot_cols)
-                vits_df.loc[0, target_col] = percent
+                vits_df = fill_nut_df(nut_type, start_idx, end_idx,
+                                       usr_life_stg, cnf_nut, cnf_amt,
+                                       multiplier, vits_df,
+                                      usr_type, usr_age, usr_active_lvl)
+
             elif nut_type == 'macronutrient':
-                # get slice of df
-                portion = rdi_macros_df.iloc[start_idx:end_idx, :].astype(str)
-                row = portion[portion['Life-Stage Group']==usr_life_stg]
-                cols= list(row.columns)
-                target_col = get_target_col(cnf_nut, cols)
-                target_val = row[target_col].item()
-                if target_val!= 'nan' and target_val!='ND':
-                    val = float(row[target_col].item())
-                else:
-                    val=cnf_amt
-                percent = ((cnf_amt * multiplier) / val) * 100.
-                #index into macros_df and enter percent
-                plot_cols = list(macros_df.columns)
-                target_col = get_target_col(cnf_nut, plot_cols)
-                macros_df.loc[0, target_col] = percent
+                macros_df = fill_nut_df(nut_type, start_idx, end_idx,
+                                       usr_life_stg, cnf_nut, cnf_amt,
+                                       multiplier, macros_df,
+                                        usr_type, usr_age, usr_active_lvl)
 
         #style chart
         elem_colors = color_bars(elems_df)
@@ -255,6 +227,8 @@ def register_rdi_charts_callbacks(app):
         if current_user.is_authenticated:
             usr_life_stg = current_user.lifestage_grp
             usr_type = current_user.person_type
+            usr_active_lvl = current_user.active_level
+            usr_age = current_user.age
 
         if total_nuts_json is None:
             return no_update, no_update, no_update
@@ -288,53 +262,20 @@ def register_rdi_charts_callbacks(app):
             # get start and exclusive end idx of rdi_df
             start_idx, end_idx = get_lifestage_idxs(usr_type)
             if nut_type == 'element':
-                # get slice of df
-                portion = rdi_elems_df.iloc[start_idx:end_idx, :].astype(str)
-                row = portion[portion['Life-Stage Group'] == usr_life_stg]
-                cols = list(row.columns)
-                target_col = get_target_col(cnf_nut, cols)
-                target_val = row[target_col].item()
-                if target_val != 'nan' and target_val != 'ND':
-                    val = float(row[target_col].item())
-                else:  # todo: this assumes when nan that any intake fulfills rda
-                    val = cnf_amt
-                percent = ((cnf_amt * multiplier) / val) * 100.
-                # index into elems_df and enter percent
-                plot_cols = list(elems_df.columns)
-                target_col = get_target_col(cnf_nut, plot_cols)
-                elems_df.loc[0, target_col] = percent
+                elems_df = fill_nut_df(nut_type, start_idx, end_idx,
+                                       usr_life_stg, cnf_nut, cnf_amt,
+                                       multiplier, elems_df,
+                                       usr_type, usr_age, usr_active_lvl)
             elif nut_type == 'vitamin':
-                # get slice of df
-                portion = rdi_vits_df.iloc[start_idx:end_idx, :].astype(str)
-                row = portion[portion['Life-Stage Group'] == usr_life_stg]
-                cols = list(row.columns)
-                target_col = get_target_col(cnf_nut, cols)
-                target_val = row[target_col].item()
-                if target_val != 'nan' and target_val != 'ND':
-                    val = float(row[target_col].item())
-                else:
-                    val = cnf_amt
-                percent = ((cnf_amt * multiplier) / val) * 100.
-                # index into vits_df and enter percent
-                plot_cols = list(vits_df.columns)
-                target_col = get_target_col(cnf_nut, plot_cols)
-                vits_df.loc[0, target_col] = percent
+                vits_df = fill_nut_df(nut_type, start_idx, end_idx,
+                                       usr_life_stg, cnf_nut, cnf_amt,
+                                       multiplier, vits_df,
+                                      usr_type, usr_age, usr_active_lvl)
             elif nut_type == 'macronutrient':
-                # get slice of df
-                portion = rdi_macros_df.iloc[start_idx:end_idx, :].astype(str)
-                row = portion[portion['Life-Stage Group'] == usr_life_stg]
-                cols = list(row.columns)
-                target_col = get_target_col(cnf_nut, cols)
-                target_val = row[target_col].item()
-                if target_val != 'nan' and target_val != 'ND':
-                    val = float(row[target_col].item())
-                else:
-                    val = cnf_amt
-                percent = ((cnf_amt * multiplier) / val) * 100.
-                # index into macros_df and enter percent
-                plot_cols = list(macros_df.columns)
-                target_col = get_target_col(cnf_nut, plot_cols)
-                macros_df.loc[0, target_col] = percent
+                macros_df = fill_nut_df(nut_type, start_idx, end_idx,
+                                       usr_life_stg, cnf_nut, cnf_amt,
+                                       multiplier, macros_df,
+                                        usr_type, usr_age, usr_active_lvl)
 
         #style chart
         elem_colors = color_bars(elems_df)

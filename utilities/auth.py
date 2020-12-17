@@ -38,11 +38,11 @@ class User(db.Model):
     last = Column(String(100), nullable=True)
     email = Column(String(100), unique=True, nullable=False)
     password = Column(String(100), nullable=False)
-    age = Column(Integer, nullable=False) #def 35
+    age = Column(String(50), nullable=False) #def 35
     person_type = Column(String(100), nullable=False) #def 0=female
     # def female, 31 to 50 y
     lifestage_grp = Column(String(255), nullable=False)
-
+    active_level = Column(String(100), nullable=False)
 
 
 def user_table():

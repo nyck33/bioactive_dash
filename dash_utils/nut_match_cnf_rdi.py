@@ -132,12 +132,14 @@ rdi_engine = create_engine("mysql+pymysql://root:tennis33@localhost/rdi_db?chars
 import pandas as pd
 df_dict = {}
 for name in rdi_engine.table_names():
-    if name != "macronutrients_dist_range" and name !=\
+    '''
+    if name != "macronutrients_dist_range" and name !=
     "elements_upper_rdi" and name != "vitamins_upper_rdi":
-        sql = "SELECT * from " + name
-        df = pd.read_sql_query(sql, rdi_engine)
-        df_dict[name] = df
-        #print(f'{name}\n{df}')
+    '''
+    sql = "SELECT * from " + name
+    df = pd.read_sql_query(sql, rdi_engine)
+    df_dict[name] = df
+    #print(f'{name}\n{df}')
 
 #print(len(df_dict))
 
@@ -145,6 +147,7 @@ for name in rdi_engine.table_names():
 elements_df = df_dict['elements_rdi']
 vitamins_df = df_dict['vitamins_rdi']
 macros_df = df_dict['macronutrients_rdi']
+macro_distrange_df = df_dict['macronutrients_dist_range']
 
 rdi_elements = [x.lower() for x in elements_df.columns.tolist() if x != "Life-Stage Group"]
 rdi_elems_dict = strip_units(rdi_elements)
@@ -282,3 +285,66 @@ for match in exacts:
 #print(len(cnf_elems_dicts), len(cnf_vits_dicts), len(cnf_macros_dicts))
 #print(cnf_elems_dicts, cnf_vits_dicts, cnf_macros_dicts)
 
+"""
+get calories tables for males and females
+"""
+males_table_name = 'males_calories'
+
+sql = "SELECT * from " + males_table_name
+
+males_df = pd.read_sql_query(sql, rdi_engine)
+
+females_table = 'females_calories'
+
+sql2 = "SELECT * from " + females_table
+
+females_df = pd.read_sql_query(sql2, rdi_engine)
+
+def get_calories_per_day(person_type, age, active_lvl):
+    """
+    index into males_df and females_df
+    cols: age, sedentary, moderately_active, active
+    param: age is a decimal so 0.5 for 6 mo's
+    Return: calories per day as int
+    """
+    # todo: change this to handle baby ages properly
+    if not age.isdigit():
+        age = 2
+    else:
+        # change age to int
+        age = int(age)
+
+    # change pregnant or lactating to female:
+    if 'preg' in person_type or 'lact' in person_type:
+        person_type = 'female'
+
+    df = None
+    if person_type=='male':
+        df = males_df
+    else:
+        df = females_df
+
+    val = ""
+
+    if 2 <= age <= 18:
+        idx = df.index[df['age'] == str(age)][0]
+        val = df.loc[idx, active_lvl]
+    elif age < 2.: #todo: calc val here
+        row = df[df['age'] == '2']
+    elif age >= 76:
+        val = df[active_lvl].iloc[-1]
+    else:
+        for idx, row in df.iterrows():
+            if "-" in row['age']:
+                age_grp = row['age'].split('-')
+                age_grp = [int(x) for x in age_grp]
+                low = age_grp[0]
+                high = age_grp[1]
+                if low <= age <= high:
+                    #the_idx = idx
+                    val = df.loc[idx, active_lvl]
+                    break
+
+    val = int(val.replace(",", ""))
+
+    return val

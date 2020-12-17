@@ -12,10 +12,8 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash_table import DataTable
-from mongoengine import connect
-
+from flask_login import current_user
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String
-import pymysql
 
 # for foods by nutrients
 nut_engine = create_engine("mysql+pymysql://root:tennis33@localhost/dashcnf?charset=utf8mb4")#, echo=True)
@@ -33,7 +31,7 @@ from dash_utils.nut_match_cnf_rdi import (
     # compared cnf_nuts_dict v. rdi_units_dict
     exacts, converts, not_match,
     #functions
-    get_df_cols, strip_units,
+    get_df_cols, strip_units, get_calories_per_day,
     #arrs of [{cnf_nut:cnf_unit}, {rdi_nut: rdi_units}]
     cnf_elems_dicts, cnf_vits_dicts, cnf_macros_dicts
 )
@@ -216,6 +214,91 @@ def make_cumul_ingreds_ui():
     return cumul_ingreds_ui
 
 
+def fill_nut_df(nut_type, start_idx, end_idx, usr_life_stg,
+                 cnf_nut, cnf_amt, multiplier,
+                 the_df, #elems, vits or macro to fill with percentages
+                usr_type, usr_age, usr_active_lvl,
+                num_days=1.):
+
+    #from macro-distrange, percent fat of energy
+    max_fat = .3  # default for adults is 20 to 35%
+    age_num = int(usr_age)
+    if age_num <= 3:  # 30 to 40%
+        max_fat = .4
+    elif 3 < age_num <= 18:  # 25 to 35%
+        max_fat = .35
+    elif age_num > 18:
+        max_fat = .3
+
+    #choose rdi_df by nut_type
+    rdi_df = None
+    if nut_type == "element":
+        rdi_df = rdi_elems_df.copy()
+    elif nut_type == "vitamin":
+        rdi_df = rdi_vits_df.copy()
+    elif nut_type == "macronutrient":
+        rdi_df = rdi_macros_df.copy()
+
+    #multiply cells by num days,
+    rdi_df = rdi_df.astype(str)
+    print(f'rdi_df before:\n {rdi_df}, {rdi_df.dtypes}')
+
+    cols = list(rdi_df.columns)
+    key_cols = cols[1:]
+    for idx, row in rdi_df.iterrows():
+        for col in key_cols:
+            #filter out the life stage col
+            '''
+            if 'Life-Stage' in str(col):
+                continue
+            '''
+            # get curr_val in rdi_df
+            curr_val = rdi_df.loc[idx, col]
+            print(f'curr_val: {curr_val}, idx: {idx}, col: {col}')
+            if curr_val == 'ND' or curr_val == 'nan' or curr_val == 'None':
+                continue
+            else:
+                curr_val = float(curr_val) * num_days
+                rdi_df.loc[idx, col] = curr_val
+    print(f'rdi_df after:\n {rdi_df}, {rdi_df.dtypes}')
+
+    df = the_df.copy()
+    # get slice of df
+    portion = rdi_df.iloc[start_idx:end_idx, :].astype(str)
+    row = portion[portion['Life-Stage Group'] == usr_life_stg]
+    cols = list(row.columns)
+    target_col = get_target_col(cnf_nut, cols)
+    target_val = row[target_col].item()
+    if target_val != 'nan' and target_val != 'ND':
+        val = float(row[target_col].item())
+    # todo: fix this Z
+    elif target_val == "ND":
+        """
+        9 calories per fat gram
+        """
+        calories_per_fatg = 9.
+        # get calorie value
+        calories_per_day = get_calories_per_day(usr_type, usr_age, usr_active_lvl)
+        # mult calories per day from those allowed from fat from RDI and num_days
+        fat_cals_per_period = (float(calories_per_day) * num_days) * max_fat
+        percent = ((float(cnf_amt) * multiplier
+                    * calories_per_fatg) / fat_cals_per_period) * 100.
+        # index into elems_df and enter percent
+        plot_cols = list(df.columns)
+        target_col = get_target_col(cnf_nut, plot_cols)
+        df.loc[0, target_col] = percent
+
+        return df
+    else:  # todo: this assumes when nan that any intake fulfills rda
+        val = cnf_amt #not multiplied by num_days
+
+    percent = ((cnf_amt * multiplier) / val) * 100.
+    # index into elems_df and enter percent
+    plot_cols = list(df.columns)
+    target_col = get_target_col(cnf_nut, plot_cols)
+    df.loc[0, target_col] = percent
+
+    return df
 
 
 
