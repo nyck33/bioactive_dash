@@ -1,0 +1,4 @@
+Life-Stage Group,Fat,Linoleic Acid,α-Linolenic Acid,Carbohydrate,Protein
+child <= 3 y,30,5,0.6,45,5
+child <= 18 y,25,5,0.6,45,10
+adults,20,5,0.6,45,10

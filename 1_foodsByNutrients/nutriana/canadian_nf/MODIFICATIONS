@@ -1,0 +1,63 @@
+All tables:
+- The original table data files are unchanged, but because during data import MySQL cannot handle trailing spaces and Oracle cannot handle trailing line feed characters (^M), the original "data/<table>.csv" files were copied to "data/<table>.csv.trimmed" files and processed further to remove all trailing whitespace on every line and empty lines altogether.
+- The data file names contain spaces, which doesn't work well for database tables. The spaces have been replaced by underscores.
+- The column names in the "CNF 2015 Database structure EN.pdf" file are sometimes in the wrong order or misspelled. Instead the column names from the data files are used, except as mentioned below.
+- The date format in the data files is actually yyyy-mm-dd, not yyyy/mm/dd.
+- The documentation does not mention what columns can be null, so assuming all columns cannot be null, except as mentioned below.
+- No record counts are listed for each table, so "wc" was used on the .trimmed files to determine the #rows.
+
+FOOD NAME:
+- Allow FoodDateOfPublication to be null as not all records specify a value
+- Allow CountryCode to be null as not all records specify a value
+- Allow ScientificName to be null as not all records specify a value
+- One record has FoodSourceID of 32, which does not exist in FOOD SOURCE table:
+  4264,4264,19,32,"Dessert, pudding, vanilla, dry mix, instant, prepared with 2% milk","Dessert, pouding, vanille, mélange sec, instantané, préparé avec lait 2%",1994-01-01,,19211,
+  It was corrected by manually setting FoodSourceID to 0 in the FOOD_NAME.csv.trimmed file.
+- Change FoodID size from 11 to 8 to prevent an error with MySQL which requires the size of foreign keyed column to be the same as the referenced column.
+
+FOOD SOURCE:
+- FoodSourceCode is marked as a primary key (perhaps together with FoodSourceID), but isn't necessary as there is already an ID column. So, FoodSourceID is the only primary key.
+
+MEASURE NAME:
+- CONVERSION FACTOR references several MeasureID values that do not exist:
+  mysql> select distinct MeasureID from CONVERSION_FACTOR where MeasureID not in (select MeasureID from MEASURE_NAME) order by MeasureID;
+  --------------
+  select distinct MeasureID from CONVERSION_FACTOR where MeasureID not in (select MeasureID from MEASURE_NAME) order by MeasureID
+  --------------
+
+  +-----------+
+  | MeasureID |
+  +-----------+
+  |       250 |
+  |       396 |
+  |       430 |
+  |       493 |
+  |      1339 |
+  |      1598 |
+  |      1666 |
+  |    500198 |
+  |    500835 |
+  |    501181 |
+  |    502334 |
+  |    502335 |
+  |    502461 |
+  |    502468 |
+  |    502472 |
+  +-----------+
+  15 rows in set (0.02 sec)
+  It was corrected by manually inserting these missing values into the MEASURE NAME table via the MEASURE_NAME.csv.trimmed file.
+
+NUTRIENT AMOUNT:
+- Allow StandardError to be null as not all records specify a value
+- Allow NumberOfObservations to be null as not all records specify a value
+- One record has a NutrientID value of 328, which does not exist in the NUTRIENT NAME table:
+  534,328,0.1,,,0,2015-05-15
+  It was corrected by manually setting NutrientID to 339 (the ID for the record in NUTRIENT NAME with NutrientCode == 328) in the NUTRIENT_AMOUNT.csv.trimmed file.
+
+NUTRIENT NAME:
+- Allow Tagname to be null as not all records specify a value
+
+NUTRIENT_SOURCE:
+- One record has a missing value for NutrientSourceDescriptionF: 
+  108,18,Imputed data that USDA has deleted,
+  It was corrected by manually filling in that value in the NUTRIENT_SOURCE.csv.trimmed file (rather than allowing NutrientSourceDescriptionF to be null).

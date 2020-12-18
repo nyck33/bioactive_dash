@@ -1,0 +1,29 @@
+Life-Stage Group,Vitamin A (ug/d),Vitamin C (mg/d),Vitamin D (ug/d),Vitamin E (mg/d),Vitamin K (ug/d),Thiamin (mg/d),Riboflavin (mg/d),Niacin (mg/d),Vitamin B6 (mg/d),Folate (ug/d),Vitamin B12 (ug/d),Pantothenic Acid (mg/d),Biotin (ug/d),Choline (mg/d),Carotenoids
+Infants,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+< 6 mo,600.0,ND,25.0,ND,ND,ND,ND,ND,ND,ND,ND,ND,ND,ND,ND
+< 12 mo,600.0,ND,38.0,ND,ND,ND,ND,ND,ND,ND,ND,ND,ND,ND,ND
+Children,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+1 to 3 y,600.0,400,63.0,200,ND,ND,ND,10,30,300,ND,ND,ND,1.0,ND
+4 to 8 y,900.0,650,75.0,300,ND,ND,ND,15,40,400,ND,ND,ND,1.0,ND
+Males,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+9 to 13 y,1700.0,1200,100.0,600,ND,ND,ND,20,60,600,ND,ND,ND,2.0,ND
+14 to 18 y,2800.0,1800,100.0,800,ND,ND,ND,30,80,800,ND,ND,ND,3.0,ND
+19 to 30 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+31 to 50 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+51 to 70,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+> 70 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+Females,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+9 to 13 y,1700.0,1200,100.0,600,ND,ND,ND,20,60,600,ND,ND,ND,2.0,ND
+14 to 18 y,2800.0,1800,100.0,800,ND,ND,ND,30,80,800,ND,ND,ND,3.0,ND
+19 to 30 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+31 to 50 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+51 to 70 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+> 70 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+Pregnancy,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+14 to 18 y,2800.0,1800,100.0,800,ND,ND,ND,30,80,800,ND,ND,ND,3.0,ND
+19 to 30 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+31 to 50 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+Lacation,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan
+14 to 18 y,2800.0,1800,100.0,800,ND,ND,ND,30,80,800,ND,ND,ND,3.0,ND
+19 to 30 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND
+31 to 50 y,3000.0,2000,100.0,1000,ND,ND,ND,35,100,1000,ND,ND,ND,3.5,ND

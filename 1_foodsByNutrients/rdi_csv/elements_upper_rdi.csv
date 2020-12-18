@@ -1,0 +1,29 @@
+Life-Stage Group,Arsenic,Boron (mg/d),Calcium (mg/d),Chromium,Copper (ug/d),Fluoride (mg/d),Iodine (ug/d),Iron (mg/d),Magnesium (mg/d),Manganese (mg/d),Molybdenum (ug/d),Nickel (mg/d),Phosphorus (g/d),Potassium,Selenium (ug/d),Silicon,Sulfate,Vanadium (mg/d),Zinc (mg/d),Sodium,Chloride (g/d)
+Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants,Infants
+< 6 mo,ND,ND,1000,ND,ND,0.7,ND,40,ND,ND,ND,ND,ND,ND,45,ND,ND,ND,4,ND,ND
+< 12 mo,ND,ND,1500,ND,ND,0.9,ND,40,ND,ND,ND,ND,ND,ND,60,ND,ND,ND,5,ND,ND
+Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children,Children
+1 to 3 y,ND,3,2500,ND,1000,1.3,200,40,65,2,300,0.2,3,ND,90,ND,ND,ND,7,ND,2.3
+4 to 8 y,ND,6,2500,ND,3000,2.2,300,40,110,3,600,0.3,3,ND,150,ND,ND,ND,12,ND,2.9
+Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males,Males
+9 to 13 y,ND,11,3000,ND,5000,10,600,40,350,6,1100,0.6,4,ND,280,ND,ND,ND,23,ND,3.4
+14 to 18 y,ND,17,3 000,ND,8 000,10,900,45,350,9,1 700,1.0,4,ND,400,ND,ND,ND,34,ND,3.6
+19 to 30 y,ND,20,2500,ND,10000,10,1100,45,350,11,2000,1.0,4,ND,400,ND,ND,1.8,40,ND,3.6
+31 to 50 y,ND,20,2500,ND,10000,10,1100,45,350,11,2000,1.0,4,ND,400,ND,ND,1.8,40,ND,3.6
+51 to 70,ND,20,2000,ND,10000,10,1100,45,350,11,2000,1.0,4,ND,400,ND,ND,1.8,40,ND,3.6
+> 70 y,ND,20,2000,ND,10000,10,1100,45,350,11,2000,1.0,3,ND,400,ND,ND,1.8,40,ND,3.6
+Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females,Females
+9 to 13 y,ND,11,3000,ND,5000,10,600,40,350,6,1100,0.6,4,ND,280,ND,ND,ND,23,ND,3.4
+14 to 18 y,ND,17,3000,ND,8000,10,900,45,350,9,1700,1.0,4,ND,400,ND,ND,ND,34,ND,3.6
+19 to 30 y,ND,20,2500,ND,10000,10,1100,45,350,11,2000,1.0,4,ND,400,ND,ND,1.8,40,ND,3.6
+31 to 50 y,ND,20,2500,ND,10000,10,1100,45,350,11,2000,1.0,4,ND,400,ND,ND,1.8,40,ND,3.6
+51 to 70 y,ND,20,2000,ND,10000,10,1100,45,350,11,2000,1.0,4,ND,400,ND,ND,1.8,40,ND,3.6
+> 70 y,ND,20,2000,ND,10000,10,1100,45,350,11,2000,1.0,3,ND,400,ND,ND,1.8,40,ND,3.6
+Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy,Pregnancy
+14 to 18 y,ND,17,3000,ND,8000,10,900,45,350,9,1700,1.0,3.5,ND,400,ND,ND,ND,34,ND,3.6
+19 to 30 y,ND,20,2500,ND,10000,10,1100,45,350,11,2000,1.0,3.5,ND,400,ND,ND,ND,40,ND,3.6
+31 to 50 y,ND,20,2500,ND,10000,10,1100,45,350,11,2000,1.0,3.5,ND,400,ND,ND,ND,40,ND,3.6
+Lacation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation,Lactation
+14 to 18 y,ND,17,3000,ND,8000,10,900,45,350,9,1700,1.0,4,ND,400,ND,ND,ND,34,ND,3.6
+19 to 30 y,ND,20,2500,ND,10000,10,1100,45,350,11,2000,1.0,4,ND,400,ND,ND,ND,40,ND,3.6
+31 to 50 y,ND,20,2500,ND,10000,10,1100,45,350,11,2000,1.0,4,ND,400,ND,ND,ND,40,ND,3.6

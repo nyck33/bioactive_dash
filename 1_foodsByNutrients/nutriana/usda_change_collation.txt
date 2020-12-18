@@ -1,0 +1,25 @@
+alter table usda_nndsr.DATA_SRCcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.DATSRCLNcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.DERIV_CDcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.FD_GROUPcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.FOOD_DEScharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.FOOTNOTEcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.LANGDESCcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.LANGUALcharset=utf8mb4_bin;                        |
+| alter table usda_nndsr.NUTR_DEFcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.NUT_DATAcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.SRC_CDcharset=utf8mb4_bin;                         |
+| alter table usda_nndsr.WEIGHTcharset=utf8mb4_bin;
+
+alter table usda_nndsr.DATA_SRCcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.DATSRCLNcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.DERIV_CDcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.FD_GROUPcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.FOOD_DEScharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.FOOTNOTEcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.LANGDESCcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.LANGUALcharset=utf8mb4_bin;                        |
+| alter table usda_nndsr.NUTR_DEFcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.NUT_DATAcharset=utf8mb4_bin;                       |
+| alter table usda_nndsr.SRC_CDcharset=utf8mb4_bin;                         |
+| alter table usda_nndsr.WEIGHTcharset=utf8mb4_bin;

@@ -1,0 +1,4 @@
+Modifications made that were missing or incorrect in the data description file ./data/sr28_doc.pdf:
+
+All tables:
+- The original table data files are unchanged, but because during data import MySQL cannot handle trailing spaces and Oracle cannot handle trailing line feed characters (^M), the original "data/<table>.txt" files were copied to "data/<table>.txt.trimmed" files and processed further to remove all trailing whitespace on every line and empty lines altogether.

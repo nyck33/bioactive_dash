@@ -1,0 +1,20 @@
+map names
+
+rdi not in CNF
+"linoleic" acid -> ", linoleic, octadecadienoic" but counted as fat
+
+alpha "linolenic" acid -> ", linolenic," and "n-3 linolenic" but counted as fat
+
+vitamina -> beta carotene
+
+vitamine -> alpha-tocopherol 
+
+chromium, no
+
+fluoride, no
+
+iodine, no
+
+molybdenum, no
+
+chloride, no
