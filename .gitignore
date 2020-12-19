@@ -40,7 +40,7 @@ push_to_server
 # Logs and databases #
 ######################
 *.log
-*.sql
+
 *.sqlite
 *.db
 
