@@ -1,15 +1,18 @@
-# dash-auth-flow
+# Micronutrients and Bioactive Compounds Tracker
 Batteries-included authentication flow in [Dash](dash.plot.ly).
 
 This has landing pages and functions to run the entire authentication flow:
 - home
+- make meal
+- my meals
 - login
 - logout
 - register
 - forgot password
 - change password
 
-This uses `flask-login` on the backend, using some code from the very useful [dash-flask-login](https://github.com/RafaelMiquelino/dash-flask-login). Data is held in `users.db`. 
+This uses `flask-login` on the backend, using some code from the very useful [dash-flask-login](https://github.com/RafaelMiquelino/dash-flask-login). 
+Recreate MySQL databases with .sql files. 
 
 ```bash
 pip install pipenv
