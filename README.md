@@ -12,8 +12,12 @@ This has landing pages and functions to run the entire authentication flow:
 - change password
 
 This uses `flask-login` on the backend, using some code from the very useful [dash-flask-login](https://github.com/RafaelMiquelino/dash-flask-login). 
-Recreate MySQL databases with .sql files. 
+Recreate MySQL databases with .sql files in [/databaseSQLFiles](https://github.com/nyck33/bioactive_dash/tree/master/databaseSqlFiles) and 
+recreate Canadian Nutrient File Mongo DB from [CNF Cyril, Robert](https://github.com/cyrilrbt/canadian-nutrient-file)
 
+
+###Note: Conda environment was used by the author, Nobutaka Kim
+- Please use environment.yml to recreate the Conda environment or requirements.txt for other virtual environments.
 ```bash
 pip install pipenv
 pipenv install --ignore-pipfile
@@ -27,6 +31,8 @@ python app.py
 ---
 
 Notes:
+
+###MailJet instructions below to be replaced with Flask-Mail (in-progress)
 
 - this uses MailJet as the email API. You need a [free MailJet API key](https://www.mailjet.com/email-api/)
 - your send-from email and API key/secret need to be entered in `config/keys.py`
