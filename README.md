@@ -1,7 +1,7 @@
 # Micronutrients and Bioactive Compounds Tracker
 
 -demo videos at [part 1](https://youtu.be/LW-x1HLDWgc) and [part 2](https://youtu.be/b0yzHxHJkyk).  
-Batteries-included authentication flow in [Dash](dash.plot.ly).
+Batteries-included authentication flow in [Dash](dash.plot.ly) originally clone from: [Dash-auth-flow](https://github.com/russellromney/dash-auth-flow)
 
 This has landing pages and functions to run the entire authentication flow:
 - home
