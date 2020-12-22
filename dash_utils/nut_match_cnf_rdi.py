@@ -91,7 +91,9 @@ cnf_units_arr = [x.replace("\xb5g", "ug") for x in cnf_nutrient_units_all]
 cnf_units_arr = [x.replace(x, f'{x}/d') for x in cnf_units_arr]
 #print(len(cnf_units_arr))
 #print(cnf_units_arr)
-
+"""
+# todo: make changes here to cnf_arr for the names of 
+"""
 #dict of {cnf_nut: cnf_units}
 cnf_arr = []
 for nut in nuts_totals_dict['Name']:
@@ -111,6 +113,31 @@ for nut, unit in cnf_nuts_dict.items():
         nut = 'carbohydrate'
     elif nut=="fibre, total dietary":
         nut = 'fiber'
+    # todo: change this master list against which all incoming nuts_tables are
+    # compared to deterimine nut_type: elements, vitamins, macros
+    elif nut == "fatty acids, polyunsaturated, 18:2undifferentiated, linoleic, octadecadienoic":
+        nut = 'linoleic acid'
+    elif nut == 'fatty acids, polyunsaturated, 18:3undifferentiated, linolenic, octadecatrienoic':
+        nut = 'alpha-linolenic acid'
+    elif nut == "vitamin d (d2 + d3)":
+        nut = 'vitamin d'
+    elif nut == "niacin (nicotinic acid) preformed":
+        nut = 'niacin'
+    elif nut == "dietary folate equivalents":
+        nut = 'folate'
+    elif nut == 'vitamin b12, added':
+        nut = 'vitamin b12'
+    elif nut == 'choline, total':
+        nut = 'choline'
+    elif nut == 'alpha-tocopherol':
+        nut = 'vitamin e'
+    elif nut == 'retinol':
+        nut = 'vitamin a'
+    elif nut == 'vitamin b-6':
+        nut = 'vitamin b6'
+    elif nut == 'vitamin b-12':
+        nut = 'vitamin b12'
+
     with_units_arr.append(nut)
 
 #for k,v in cnf_nuts_dict.items():

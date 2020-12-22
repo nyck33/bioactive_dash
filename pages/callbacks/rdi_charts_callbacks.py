@@ -154,7 +154,9 @@ def register_rdi_charts_callbacks(app):
         for idx, row in ingred_df.iterrows():
             #todo: need to process and take out brackets, extra words
             cnf_nut = row['Name'].lower()
+            print(f'cnf_nut before: {cnf_nut}\n')
             cnf_nut = preprocess_cnf_nuts(cnf_nut)
+            print(f'cnf_nut after: {cnf_nut}')
             cnf_amt = float(row['Value'])
             # todo: take out micro symbol from units but not used as units
             # taken from dicts_arrs in def find_type
@@ -246,7 +248,9 @@ def register_rdi_charts_callbacks(app):
         for idx, row in total_nuts_df.iterrows():
             # todo: need to process and take out brackets, extra words
             cnf_nut = row['Name'].lower()
+            print(f'cnf_nut before: {cnf_nut}\n')
             cnf_nut = preprocess_cnf_nuts(cnf_nut)
+            print(f'cnf_nut after: {cnf_nut}')
             cnf_amt = float(row['Value'])
             # todo: take out micro symbol from units but not used as units
             # taken from dicts_arrs in def find_type

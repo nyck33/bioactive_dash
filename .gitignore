@@ -53,3 +53,10 @@ push_to_server
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+#from https://dash.plotly.com/deployment
+venv
+*.pyc
+.DS_Store
+.env
+

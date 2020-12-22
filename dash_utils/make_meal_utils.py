@@ -59,12 +59,17 @@ lifestage_idx_dict = {
 
 #utilities
 def get_target_col(cnf_nut, cols):
+    """
+    looks for cnf_nut in rdi col names
+    but rdi name is shorter
+    """
     target_col = ""
     for col in cols:
         if cnf_nut in str(col).lower():
             target_col = col
             break
     return target_col
+
 
 
 def get_lifestage_idxs(usr_type):
@@ -85,6 +90,7 @@ def get_lifestage_idxs(usr_type):
 def find_type(nut_name, dicts_arr):
     '''
     dicts_arr: cnf_elems_dicts, cnf_vits_dicts, cnf_macros_dicts
+    todo: dicts_arr is missing rdi in cnf matches
     '''
     for match_nuts in dicts_arr:
         cnf = match_nuts[0]
@@ -92,7 +98,7 @@ def find_type(nut_name, dicts_arr):
         if cnf_nut != nut_name:
             continue
         cnf_units = list(cnf.values())[0]
-        # print(cnf_nut, cnf_units)
+        #print(cnf_nut, cnf_units)
         rdi = match_nuts[1]
         rdi_nut = list(rdi.keys())[0]
         rdi_units = list(rdi.values())[0]
@@ -136,22 +142,47 @@ def preprocess_cnf_nuts(nut):
         nut = 'carbohydrate'
     elif nut == "fibre, total dietary":
         nut = 'fiber'
+    elif nut == "fatty acids, polyunsaturated, 18:2undifferentiated, linoleic, octadecadienoic":
+        nut = 'linoleic acid'
+    elif nut == 'fatty acids, polyunsaturated, 18:3undifferentiated, linolenic, octadecatrienoic':
+        nut = 'alpha-linolenic acid'
+    elif nut == "vitamin d (d2 + d3)":
+        nut = 'vitamin d'
+    elif nut == "niacin (nicotinic acid) preformed":
+        nut = 'niacin'
+    elif nut == "dietary folate equivalents":
+        nut = 'folate'
+    elif nut == 'vitamin b12, added':
+        nut = 'vitamin b12'
+    elif nut == 'choline, total':
+        nut = 'choline'
+    elif nut == 'alpha-tocopherol':
+        nut = 'vitamin e'
+    elif nut == 'retinol':
+        nut = 'vitamin a'
+    elif nut == 'vitamin b-6':
+        nut = 'vitamin b6'
+    elif nut == 'vitamin b-12':
+        nut = 'vitamin b12'
 
     return nut
 
 def color_bars(df):
+    '''
+    elif 80. > val >= 60.:
+        colors.append('rgb(0,255,0)')
+    elif 60. > val >= 40.:
+        colors.append('rgb(0,0,255)')
+    '''
     colors = []
     cols = list(df.columns)
     for col in cols:
         val = float(df.loc[0,col])
         if val >= 100.:
             colors.append('rgb(255,0,0)')
-        elif 100. > val >= 80.:
-            colors.append('rgb(255,128,0)')
-        elif 80. > val >= 60.:
-            colors.append('rgb(0,255,0)')
-        elif 60. > val >= 40.:
+        elif 100. > val >= 40.:
             colors.append('rgb(0,0,255)')
+
         else:
             colors.append('rgb(192,192,192)')
     return colors
@@ -241,26 +272,22 @@ def fill_nut_df(nut_type, start_idx, end_idx, usr_life_stg,
 
     #multiply cells by num days,
     rdi_df = rdi_df.astype(str)
-    print(f'rdi_df before:\n {rdi_df}, {rdi_df.dtypes}')
+    #print(f'rdi_df before:\n {rdi_df}, {rdi_df.dtypes}')
 
     cols = list(rdi_df.columns)
     key_cols = cols[1:]
     for idx, row in rdi_df.iterrows():
         for col in key_cols:
-            #filter out the life stage col
-            '''
-            if 'Life-Stage' in str(col):
-                continue
-            '''
+
             # get curr_val in rdi_df
             curr_val = rdi_df.loc[idx, col]
-            print(f'curr_val: {curr_val}, idx: {idx}, col: {col}')
+            #print(f'curr_val: {curr_val}, idx: {idx}, col: {col}')
             if curr_val == 'ND' or curr_val == 'nan' or curr_val == 'None':
                 continue
             else:
                 curr_val = float(curr_val) * num_days
                 rdi_df.loc[idx, col] = curr_val
-    print(f'rdi_df after:\n {rdi_df}, {rdi_df.dtypes}')
+    #print(f'rdi_df after:\n {rdi_df}, {rdi_df.dtypes}')
 
     df = the_df.copy()
     # get slice of df
