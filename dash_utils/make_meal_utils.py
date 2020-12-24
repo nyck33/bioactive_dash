@@ -21,6 +21,8 @@ nut_table_names = nut_engine.table_names()
 nut_names_arr = [nut_name.replace("_foods", "") for nut_name in nut_table_names
                     if 'user' not in nut_name]
 
+#todo: import functions and call them right away to create
+#instances of imported variables
 from dash_utils.nut_match_cnf_rdi import (
     # {nuts:units}
     rdi_elems_dict, rdi_vits_dict, rdi_macros_dict,

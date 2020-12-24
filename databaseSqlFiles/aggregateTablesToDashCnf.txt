@@ -1,0 +1,22 @@
+select
+    concat('alter table ',db,'.',tb,' rename ',db,'.',prfx,tb,';')
+from
+    (select table_schema db,table_name tb
+    from information_schema.tables where
+    table_schema='rdi_db') A,
+    (SELECT 'dri_' prfx) B
+;
+
+
+##########################################################
+
+| alter table rdi_db.elements_rdi rename rdi_db.dri_elements_rdi;                           |
+| alter table rdi_db.elements_upper_rdi rename rdi_db.dri_elements_upper_rdi;               |
+| alter table rdi_db.females_calories rename rdi_db.dri_females_calories;                   |
+| alter table rdi_db.macronutrients_dist_range rename rdi_db.dri_macronutrients_dist_range; |
+| alter table rdi_db.macronutrients_rdi rename rdi_db.dri_macronutrients_rdi;               |
+| alter table rdi_db.males_calories rename rdi_db.dri_males_calories;                       |
+| alter table rdi_db.vitamins_rdi rename rdi_db.dri_vitamins_rdi;                           |
+| alter table rdi_db.vitamins_upper_rdi rename rdi_db.dri_vitamins_upper_rdi;  
+
+

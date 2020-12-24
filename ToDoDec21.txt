@@ -1,0 +1,11 @@
+Rename mysql tables: https://stackoverflow.com/a/7971501/14841277
+
+Host Mongo on Atlas
+
+Host MySQL on Heroku
+
+Go through CNF, make changes sanitize input
+
+Add search function for nutrient foods
+
+
