@@ -137,6 +137,7 @@ def convert_units(cnf_units, rdi_units):
     # no conversion return 1
     return 1.
 
+#todo: this has to be the same as in nut_match_rdi
 def preprocess_cnf_nuts(nut):
     if nut == "fat (total lipids)":
         nut = 'fat'
@@ -154,8 +155,8 @@ def preprocess_cnf_nuts(nut):
         nut = 'niacin'
     elif nut == "dietary folate equivalents":
         nut = 'folate'
-    elif nut == 'vitamin b12, added':
-        nut = 'vitamin b12'
+    #elif nut == 'vitamin b12, added':
+    #    nut = 'vitamin b12'
     elif nut == 'choline, total':
         nut = 'choline'
     elif nut == 'alpha-tocopherol':
@@ -318,8 +319,9 @@ def fill_nut_df(nut_type, start_idx, end_idx, usr_life_stg,
         df.loc[0, target_col] = percent
 
         return df
-    else:  # todo: this assumes when nan that any intake fulfills rda
-        val = cnf_amt #not multiplied by num_days
+    else:  # todo: is this unnecessary?
+        print(f'not ND or nan, target_val = {target_val}')
+        #val = cnf_amt #not multiplied by num_days
 
     percent = ((cnf_amt * multiplier) / val) * 100.
     # index into elems_df and enter percent

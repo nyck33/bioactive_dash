@@ -24,8 +24,7 @@ from models import (
 from dash_utils.make_meal_utils import nut_names_arr
 
 # import the rdi csv table names and filenames arrs
-from dash_utils.Dash_App_utils import (table_names_arr, csv_names_arr, make_dataframes,
-                                            make_table, make_figure)
+
 
 from dash_utils.Shiny_utils import (rdi_nutrients, make_food_to_id_dict, get_unit_names,
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,

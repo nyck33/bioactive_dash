@@ -5,17 +5,8 @@ import exacts, converts, not_match in rdi_callbacks
 """
 @author; Nobu Kim
 """
-import json
-import re
 import pandas as pd
-from dash import Dash, exceptions, no_update, callback_context
-from dash.dependencies import Input, Output, State
-from dash_utils.Dash_fun import apply_layout_with_auth
-import dash_core_components as dcc
-import dash_bootstrap_components as dbc
-import dash_html_components as html
-from dash_table import DataTable
-from mongoengine import connect
+
 
 from dash_utils.Shiny_utils import (rdi_nutrients, make_food_to_id_dict, get_unit_names,
                                          make_foodgroup_df, make_conversions_df, make_nutrients_df,
@@ -27,13 +18,55 @@ from models import (
 
 #rdi df_dict, #read from sql since csv's have alpha symbol
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String
-import pymysql
 rdi_engine = create_engine("mysql+pymysql://root:tennis33@localhost/rdi_db?charset=utf8mb4")#, echo=True)
 
 #print(rdi_engine.table_names())
 # used in layout for datalist
 food_to_id_dict, food_names_arr, food_ids_arr = make_food_to_id_dict()
 
+# pure utils don't make stuff right after
+# function to take out units
+def strip_units(nuts_arr):
+    nuts_units_dict = {}
+    for nut in nuts_arr:
+        # take out units
+        if '(g/d)' in nut:
+            curr_units = 'g/d'
+            new_nut = nut.replace('(g/d)', '').strip()
+            nuts_units_dict[new_nut] = curr_units
+        elif '(mg/d)' in nut:
+            curr_units = 'mg/d'
+            new_nut = nut.replace('(mg/d)', '').strip()
+            nuts_units_dict[new_nut] = curr_units
+        elif '(ug/d)' in nut:
+            curr_units = 'ug/d'
+            new_nut = nut.replace('(ug/d)', '').strip()
+            nuts_units_dict[new_nut] = curr_units
+        elif '(l/d)' in nut:
+            curr_units = 'l/d'
+            new_nut = nut.replace('(l/d)', '').strip()
+            nuts_units_dict[new_nut] = curr_units
+        else:  # carotenoid -> alpha-carotene, beta-carotene?
+            new_nut = nut
+            nuts_units_dict[new_nut] = ''
+
+    return nuts_units_dict
+
+# iterate ingreds_df
+def get_df_cols(df_name):
+    cols = []
+    for cnf_nut in cnf_nuts_dict.keys():
+        # #print(cnf_nut)
+        for rdi_elem in rdi_units_dict.keys():
+            # #print(rdi_elem)
+            if cnf_nut in rdi_elem:
+                cols.append(cnf_nut)
+
+    return cols
+
+
+#############################################################################
+#make stuff right after function definition
 # dict of cnf nutrient names: nutrient units
 def make_cnf_data():
     nutrients = CNFNutrientName.objects
@@ -78,7 +111,8 @@ cnf_units_arr = clean_cnf_arrs(cnf_nutrient_units_all)
 def make_cnf_nuts_dict(nuts_totals_dict):
     #dict of {cnf_nut: cnf_units}
     cnf_arr = []
-    for nut in nuts_totals_dict['Name']:
+    names_arr = nuts_totals_dict['Name']
+    for nut in names_arr:
         cnf_arr.append(nut.lower())
     ##print(len(cnf_arr))
     ##print(cnf_arr)
@@ -90,44 +124,6 @@ def make_cnf_nuts_dict(nuts_totals_dict):
 
 cnf_nuts_dict = make_cnf_nuts_dict(nuts_totals_dict)
 
-# function to take out units
-def strip_units(nuts_arr):
-    nuts_units_dict = {}
-    for nut in nuts_arr:
-        # take out units
-        if '(g/d)' in nut:
-            curr_units = 'g/d'
-            new_nut = nut.replace('(g/d)', '').strip()
-            nuts_units_dict[new_nut] = curr_units
-        elif '(mg/d)' in nut:
-            curr_units = 'mg/d'
-            new_nut = nut.replace('(mg/d)', '').strip()
-            nuts_units_dict[new_nut] = curr_units
-        elif '(ug/d)' in nut:
-            curr_units = 'ug/d'
-            new_nut = nut.replace('(ug/d)', '').strip()
-            nuts_units_dict[new_nut] = curr_units
-        elif '(l/d)' in nut:
-            curr_units = 'l/d'
-            new_nut = nut.replace('(l/d)', '').strip()
-            nuts_units_dict[new_nut] = curr_units
-        else:  # carotenoid -> alpha-carotene, beta-carotene?
-            new_nut = nut
-            nuts_units_dict[new_nut] = ''
-
-    return nuts_units_dict
-
-# iterate ingreds_df
-def get_df_cols(df_name):
-    cols = []
-    for cnf_nut in cnf_nuts_dict.keys():
-        # #print(cnf_nut)
-        for rdi_elem in rdi_units_dict.keys():
-            # #print(rdi_elem)
-            if cnf_nut in rdi_elem:
-                cols.append(cnf_nut)
-
-    return cols
 
 def match_cnf_to_rdi_nut_names(cnf_nuts_dict):
     with_units_arr = []
@@ -150,8 +146,8 @@ def match_cnf_to_rdi_nut_names(cnf_nuts_dict):
             nut = 'niacin'
         elif nut == "dietary folate equivalents":
             nut = 'folate'
-        elif nut == 'vitamin b12, added':
-            nut = 'vitamin b12'
+        #elif nut == 'vitamin b12, added':
+         #   nut = 'vitamin b12'
         elif nut == 'choline, total':
             nut = 'choline'
         elif nut == 'alpha-tocopherol':
@@ -173,9 +169,8 @@ def match_cnf_to_rdi_nut_names(cnf_nuts_dict):
 
     return cnf_nuts_dict
 
-cnf_nuts_dict = make_cnf_nuts_dict(cnf_nuts_dict)
+cnf_nuts_dict = match_cnf_to_rdi_nut_names(cnf_nuts_dict)
 
-import pandas as pd
 
 def make_df_dict():
     df_dict = {}
@@ -272,6 +267,8 @@ def make_rdi_units_dict():
         else: # carotenoid -> alpha-carotene, beta-carotene?
             new_nut = nut
             rdi_units_dict[new_nut] = ''
+
+    return rdi_units_dict
 
 rdi_units_dict = make_rdi_units_dict()
 
